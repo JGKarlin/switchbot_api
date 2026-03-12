@@ -38,4 +38,4 @@ Thumbs.db
 
 # Project-specific
 *.zip
-switchbot_auth/
+switchbot_api/

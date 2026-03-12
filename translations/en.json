@@ -24,7 +24,7 @@
     "step": {
       "init": {
         "title": "SwitchBot devices",
-        "description": "Found {device_count} devices for this account.\n\nPhysical devices: {physical_device_count}\nInfrared remotes: {infrared_remote_count}\n\n{devices}\n\nUse the switchbot_auth.send_command action with the device ID to control a device."
+        "description": "Found {device_count} devices for this account.\n\nPhysical devices: {physical_device_count}\nInfrared remotes: {infrared_remote_count}\n\n{devices}\n\nUse the switchbot_api.send_command action with the device ID to control a device."
       }
     }
   },

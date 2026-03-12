@@ -39,11 +39,11 @@ The integration also exposes a sensor with authentication headers, useful for de
    - Download the [latest release zip](#releases) or clone this repository.
 
 2. **Install in Home Assistant**
-   - Copy the `switchbot_auth` folder into your Home Assistant `custom_components` directory:
+   - Copy the `switchbot_api` folder into your Home Assistant `custom_components` directory:
      ```
-     config/custom_components/switchbot_auth/
+     config/custom_components/switchbot_api/
      ```
-   - The folder name **must** be `switchbot_auth` (matching the integration domain).
+   - The folder name **must** be `switchbot_api` (matching the integration domain).
 
 3. **Restart Home Assistant**  
    - Restart Home Assistant so it loads the new integration.
@@ -84,12 +84,12 @@ To control a device, you need its **device ID**. The integration provides severa
    - Device type  
    - **Device ID** (e.g. `C271111EC0AB`)
 
-### 2. `switchbot_auth.get_devices` Service
+### 2. `switchbot_api.get_devices` Service
 
 Call the service to fetch the device list programmatically:
 
 ```yaml
-service: switchbot_auth.get_devices
+service: switchbot_api.get_devices
 ```
 
 The response includes:
@@ -122,7 +122,7 @@ Use the `device_id` from this list when sending commands.
 
 ### Using the Service
 
-Use the `switchbot_auth.send_command` service:
+Use the `switchbot_api.send_command` service:
 
 | Parameter      | Required | Default   | Description                                                                 |
 |----------------|----------|-----------|-----------------------------------------------------------------------------|
@@ -135,7 +135,7 @@ Use the `switchbot_auth.send_command` service:
 
 **Turn on a Bot or Plug:**
 ```yaml
-service: switchbot_auth.send_command
+service: switchbot_api.send_command
 data:
   device_id: "C271111EC0AB"
   command: "turnOn"
@@ -143,7 +143,7 @@ data:
 
 **Turn off:**
 ```yaml
-service: switchbot_auth.send_command
+service: switchbot_api.send_command
 data:
   device_id: "C271111EC0AB"
   command: "turnOff"
@@ -151,7 +151,7 @@ data:
 
 **Press (Bot only – momentary press):**
 ```yaml
-service: switchbot_auth.send_command
+service: switchbot_api.send_command
 data:
   device_id: "C271111EC0AB"
   command: "press"
@@ -159,7 +159,7 @@ data:
 
 **Set curtain position (0–100):**
 ```yaml
-service: switchbot_auth.send_command
+service: switchbot_api.send_command
 data:
   device_id: "YOUR_CURTAIN_DEVICE_ID"
   command: "setPosition"
@@ -168,7 +168,7 @@ data:
 
 **Infrared remote – power on TV:**
 ```yaml
-service: switchbot_auth.send_command
+service: switchbot_api.send_command
 data:
   device_id: "02-202312011234-00"
   command: "turnOn"
@@ -177,7 +177,7 @@ data:
 
 **Infrared remote – custom key:**
 ```yaml
-service: switchbot_auth.send_command
+service: switchbot_api.send_command
 data:
   device_id: "02-202312011234-00"
   command: "customize"
@@ -215,18 +215,18 @@ data:
   device_id: "C271111EC0AB"
 ```
 
-**Note:** Replace `sensor.switchbot_api_auth_headers` with your actual entity ID (find it in Developer Tools → States). Auth headers expire after about 60 seconds. The sensor refreshes them every 55 seconds. For REST commands, call the service soon after the sensor updates, or use the `switchbot_auth.send_command` service instead, which handles auth internally.
+**Note:** Replace `sensor.switchbot_api_auth_headers` with your actual entity ID (find it in Developer Tools → States). Auth headers expire after about 60 seconds. The sensor refreshes them every 55 seconds. For REST commands, call the service soon after the sensor updates, or use the `switchbot_api.send_command` service instead, which handles auth internally.
 
 #### Simpler approach: Call the service from REST
 
-Expose the `switchbot_auth.send_command` service via the [Home Assistant REST API](https://www.home-assistant.io/api/rest/) and call it from external systems:
+Expose the `switchbot_api.send_command` service via the [Home Assistant REST API](https://www.home-assistant.io/api/rest/) and call it from external systems:
 
 ```bash
 curl -X POST \
   -H "Authorization: Bearer YOUR_HA_LONG_LIVED_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"device_id":"C271111EC0AB","command":"turnOn"}' \
-  https://your-ha-instance:8123/api/services/switchbot_auth/send_command
+  https://your-ha-instance:8123/api/services/switchbot_api/send_command
 ```
 
 ---
@@ -256,9 +256,9 @@ For full details, see the [SwitchBot Open API documentation](https://github.com/
 ### Download as ZIP
 
 1. Go to the [Releases](https://github.com/JGKarlin/switchbot_api/releases) page
-2. Download the latest `switchbot_auth.zip`
-3. Extract the `switchbot_auth` folder
-4. Copy it to `config/custom_components/switchbot_auth/`
+2. Download the latest `switchbot_api.zip`
+3. Extract the `switchbot_api` folder
+4. Copy it to `config/custom_components/switchbot_api/`
 
 ### Creating a Release ZIP
 
@@ -269,7 +269,7 @@ chmod +x create_release_zip.sh
 ./create_release_zip.sh
 ```
 
-This creates `switchbot_auth.zip` containing the correctly named `switchbot_auth` folder for `custom_components`. You can attach this zip to a GitHub release for easy downloads.
+This creates `switchbot_api.zip` containing the correctly named `switchbot_api` folder for `custom_components`. You can attach this zip to a GitHub release for easy downloads.
 
 ---
 
@@ -286,7 +286,7 @@ This creates `switchbot_auth.zip` containing the correctly named `switchbot_auth
 - **Invalid token or secret** – Regenerate your token in the SwitchBot app and re-enter it in the integration.
 - **Device not responding** – Confirm the device is online in the SwitchBot app and that you’re using the correct `device_id`.
 - **Command not working** – Check the [SwitchBot API docs](https://github.com/OpenWonderLabs/SwitchBotAPI) for your device type and supported commands.
-- **REST auth fails** – Auth headers expire in ~60 seconds. Use `switchbot_auth.send_command` when possible, or ensure your REST call runs shortly after the sensor updates.
+- **REST auth fails** – Auth headers expire in ~60 seconds. Use `switchbot_api.send_command` when possible, or ensure your REST call runs shortly after the sensor updates.
 
 ---
 
@@ -296,8 +296,8 @@ This creates `switchbot_auth.zip` containing the correctly named `switchbot_auth
 2. (Optional) Update the Releases URL in this README if you fork the repo
 3. Add repository description and topics: `home-assistant`, `switchbot`, `custom-integration`, `iot`
 4. Push your code and create a release:
-   - Run `./create_release_zip.sh` to generate `switchbot_auth.zip`
-   - Create a new release, tag it (e.g. `v2.2.0`), and attach `switchbot_auth.zip` as an asset
+   - Run `./create_release_zip.sh` to generate `switchbot_api.zip`
+   - Create a new release, tag it (e.g. `v2.2.0`), and attach `switchbot_api.zip` as an asset
 5. For HACS: Users can add your repo as a custom repository (HACS → Integrations → ⋮ → Custom repositories) with `content_in_root: true`
 
 ---

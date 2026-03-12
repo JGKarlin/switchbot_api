@@ -1,5 +1,5 @@
 {
-  "domain": "switchbot_auth",
+  "domain": "switchbot_api",
   "name": "SwitchBot API",
   "version": "2.2.0",
   "config_flow": true,

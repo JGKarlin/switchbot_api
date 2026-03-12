@@ -48,7 +48,7 @@ class SwitchBotAuthSensor(SensorEntity):
         self._attr_native_value = None
         self._attr_extra_state_attributes = {}
         self._attr_name = "Auth headers"
-        self._attr_unique_id = f"{config_entry.entry_id}_switchbot_auth"
+        self._attr_unique_id = f"{config_entry.entry_id}_switchbot_api"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, config_entry.entry_id)},
             manufacturer="SwitchBot",
