@@ -255,7 +255,7 @@ For full details, see the [SwitchBot Open API documentation](https://github.com/
 
 ### Download as ZIP
 
-1. Go to the [Releases](https://github.com/YOUR_USERNAME/switchbot_api/releases) page (replace `YOUR_USERNAME` with your GitHub username)
+1. Go to the [Releases](https://github.com/JGKarlin/switchbot_api/releases) page
 2. Download the latest `switchbot_auth.zip`
 3. Extract the `switchbot_auth` folder
 4. Copy it to `config/custom_components/switchbot_auth/`
@@ -293,7 +293,7 @@ This creates `switchbot_auth.zip` containing the correctly named `switchbot_auth
 ## Publishing to GitHub
 
 1. Create a new public repository on GitHub (e.g. `switchbot_api`)
-2. Update the Releases URL in this README: replace `YOUR_USERNAME` with your GitHub username
+2. (Optional) Update the Releases URL in this README if you fork the repo
 3. Add repository description and topics: `home-assistant`, `switchbot`, `custom-integration`, `iot`
 4. Push your code and create a release:
    - Run `./create_release_zip.sh` to generate `switchbot_auth.zip`
