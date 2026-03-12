@@ -283,17 +283,6 @@ For full details, see the [SwitchBot Open API documentation](https://github.com/
 3. Extract the `switchbot_api` folder
 4. Copy it to `config/custom_components/switchbot_api/`
 
-### Creating a Release ZIP
-
-A script is included to build the zip. From the repository root:
-
-```bash
-chmod +x create_release_zip.sh
-./create_release_zip.sh
-```
-
-This creates `switchbot_api.zip` containing the correctly named `switchbot_api` folder for `custom_components`. You can attach this zip to a GitHub release for easy downloads.
-
 ---
 
 ## Requirements
@@ -318,9 +307,7 @@ This creates `switchbot_api.zip` containing the correctly named `switchbot_api` 
 1. Create a new public repository on GitHub (e.g. `switchbot_api`)
 2. (Optional) Update the Releases URL in this README if you fork the repo
 3. Add repository description and topics: `home-assistant`, `switchbot`, `custom-integration`, `iot`
-4. Push your code and create a release:
-   - Run `./create_release_zip.sh` to generate `switchbot_api.zip`
-   - Create a new release, tag it (e.g. `v2.2.2`), and attach `switchbot_api.zip` as an asset
+4. Push your code and create a release: tag it (e.g. `v2.2.2`) and attach a `switchbot_api.zip` containing the `switchbot_api` folder as an asset
 5. For HACS: Users can add your repo as a custom repository (HACS → Integrations → ⋮ → Custom repositories) with `content_in_root: true`
 
 ---
