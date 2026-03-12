@@ -1,0 +1,6 @@
+{
+  "service": {
+    "get_devices": "mdi:format-list-bulleted-square",
+    "send_command": "mdi:remote"
+  }
+}
