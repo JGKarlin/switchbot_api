@@ -1,0 +1,12 @@
+{
+  "domain": "switchbot_auth",
+  "name": "SwitchBot API",
+  "version": "2.2.0",
+  "config_flow": true,
+  "single_config_entry": true,
+  "documentation": "",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": [],
+  "iot_class": "local_polling"
+}

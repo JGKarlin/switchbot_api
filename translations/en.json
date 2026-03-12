@@ -1,0 +1,59 @@
+{
+  "title": "SwitchBot API",
+  "config": {
+    "step": {
+      "user": {
+        "title": "SwitchBot API credentials",
+        "description": "Get your token and secret from the SwitchBot app. Open the app, go to Profile, then Preferences (or Preferences -> About on app 9.0+). Tap the App Version number 10 times to reveal Developer Options. Tap Developer Options, then Get Token to view your token and secret key. Copy both values and enter them below.",
+        "data": {
+          "token": "Token",
+          "secret": "Secret"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the SwitchBot API",
+      "invalid_auth": "Invalid token or secret",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This SwitchBot authentication helper is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SwitchBot devices",
+        "description": "Found {device_count} devices for this account.\n\nPhysical devices: {physical_device_count}\nInfrared remotes: {infrared_remote_count}\n\n{devices}\n\nUse the switchbot_auth.send_command action with the device ID to control a device."
+      }
+    }
+  },
+  "services": {
+    "get_devices": {
+      "name": "Get devices",
+      "description": "Fetch the SwitchBot device list and return names, IDs, and types."
+    },
+    "send_command": {
+      "name": "Send command",
+      "description": "Send a SwitchBot command to a specific device.",
+      "fields": {
+        "device_id": {
+          "name": "Device ID",
+          "description": "The SwitchBot device ID to target."
+        },
+        "command": {
+          "name": "Command",
+          "description": "The command to send, for example `turnOn` or `turnOff`."
+        },
+        "parameter": {
+          "name": "Parameter",
+          "description": "The command parameter. Most commands use `default`."
+        },
+        "command_type": {
+          "name": "Command type",
+          "description": "The command type. Most commands use `command`."
+        }
+      }
+    }
+  }
+}

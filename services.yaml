@@ -1,0 +1,21 @@
+get_devices:
+
+send_command:
+  fields:
+    device_id:
+      required: true
+      example: C271111EC0AB
+      selector:
+        text:
+    command:
+      example: turnOn
+      selector:
+        text:
+    parameter:
+      example: default
+      selector:
+        text:
+    command_type:
+      example: command
+      selector:
+        text:
