@@ -320,7 +320,7 @@ This creates `switchbot_api.zip` containing the correctly named `switchbot_api` 
 3. Add repository description and topics: `home-assistant`, `switchbot`, `custom-integration`, `iot`
 4. Push your code and create a release:
    - Run `./create_release_zip.sh` to generate `switchbot_api.zip`
-   - Create a new release, tag it (e.g. `v2.2.1`), and attach `switchbot_api.zip` as an asset
+   - Create a new release, tag it (e.g. `v2.2.2`), and attach `switchbot_api.zip` as an asset
 5. For HACS: Users can add your repo as a custom repository (HACS → Integrations → ⋮ → Custom repositories) with `content_in_root: true`
 
 ---
