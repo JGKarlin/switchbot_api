@@ -6,9 +6,22 @@ send_command:
   fields:
     device_name:
       required: false
-      example: "Office Curtain [Curtain]"
       selector:
-        text:
+        select:
+          options:
+          - "Curtain Right [Curtain]"
+          - "Door [Smart Lock]"
+          - "Hub Mini Living [Hub Mini]"
+          - "Mailbox Sensor [Contact Sensor]"
+          - "Mini Lights [Others]"
+          - "Mitsubishi AC [Air Conditioner]"
+          - "Office Curtain [Curtain]"
+          - "Office Light [Others]"
+          - "Plug Mini [Plug Mini (JP)]"
+          - "Remote [Remote]"
+          - "SwitchBot Hub 2 [Hub 2]"
+          - "SwitchBot Hub 3 [Hub 3]"
+          - "popIn Aladdin 2 (Hub3) [Others]"
     device_id:
       required: false
       example: C271111EC0AB

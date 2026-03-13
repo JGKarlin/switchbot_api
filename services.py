@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import json
 import logging
+from pathlib import Path
 from typing import Any
 
 import voluptuous as vol
@@ -112,9 +113,59 @@ async def async_refresh_device_cache(hass: HomeAssistant) -> None:
     hass.data[DOMAIN][DATA_CACHE_UPDATED_UTC] = datetime.now(timezone.utc).isoformat()
     hass.data[DOMAIN][DATA_CACHE_DEVICE_COUNT] = len(device_map)
 
+    _write_services_yaml(sorted(device_map.keys()))
+
     _LOGGER.debug(
         "Cached %s SwitchBot devices for service selectors", len(device_map)
     )
+
+
+def _write_services_yaml(device_labels: list[str]) -> None:
+    """Rewrite services.yaml with current device names as select options."""
+    services_path = Path(__file__).parent / "services.yaml"
+
+    if device_labels:
+        options_lines = "\n".join(f'          - "{label}"' for label in device_labels)
+        device_selector = f"        select:\n          options:\n{options_lines}"
+    else:
+        device_selector = "        text:"
+
+    content = f"""get_devices:
+
+get_auth_headers:
+
+send_command:
+  fields:
+    device_name:
+      required: false
+      selector:
+{device_selector}
+    device_id:
+      required: false
+      example: C271111EC0AB
+      selector:
+        text:
+    command:
+      required: false
+      example: turnOn
+      selector:
+        text:
+    parameter:
+      required: false
+      example: default
+      selector:
+        text:
+    command_type:
+      required: false
+      example: command
+      selector:
+        text:
+"""
+
+    try:
+        services_path.write_text(content, encoding="utf-8")
+    except OSError:
+        _LOGGER.warning("Could not write services.yaml for dynamic device selector")
 
 
 @callback

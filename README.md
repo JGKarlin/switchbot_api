@@ -4,15 +4,17 @@
 
 # SwitchBot API for Home Assistant
 
-A Home Assistant custom integration that provides direct access to the SwitchBot Cloud API. Control **all** your SwitchBot devices—including infrared remotes and devices not supported by the official SwitchBot Cloud integration—via services and REST commands.
+A Home Assistant custom integration that provides direct access to the SwitchBot Cloud API. Control **all** your SwitchBot devices—including infrared remotes and devices not supported by the official SwitchBot Cloud integration—via a single service action.
 
 ## What It Does
 
 This integration connects Home Assistant to the [SwitchBot Open API](https://github.com/OpenWonderLabs/SwitchBotAPI) using your token and secret from the SwitchBot app. It provides:
 
-- **Device discovery** – Fetch and view all devices in your SwitchBot account with their IDs
-- **Device control** – Send commands to any device via Home Assistant services or REST
+- **Device discovery** – Fetch and view all devices in your SwitchBot account with a device name dropdown
+- **Device control** – Send commands to any device via `switchbot_api.send_command` with automatic command type detection
 - **Full API access** – Use the same API that powers the SwitchBot app, including infrared remotes and 50+ device types
+- **API status monitoring** – Validates your credentials every 10 minutes and shows `connected`, `authentication_failed`, or `connection_error`
+- **Credential management** – Update your token and secret via Reconfigure without removing the integration
 
 ## Why It Exists
 
@@ -22,19 +24,15 @@ This integration gives you **direct API access**, so you can:
 
 - Control infrared remotes (TVs, air conditioners, set-top boxes, etc.)
 - Use devices not yet supported by the official integration
-- Build automations with any SwitchBot device via services or REST
+- Build automations with any SwitchBot device
 - Access the full SwitchBot API without waiting for official support
 
 ## How It Works
 
-1. **Authentication** – You provide your SwitchBot Open API token and secret (from the SwitchBot app’s Developer Options). The integration uses HMAC-SHA256 signing for each request.
-2. **Device list** – The integration fetches your devices from `GET /v1.1/devices`, including both physical devices (Bots, Curtains, Plugs, etc.) and infrared remotes.
-3. **Commands** – Commands are sent via `POST /v1.1/devices/{deviceId}/commands` with the command, parameter, and command type you specify.
-
-The integration also exposes:
-
-- a diagnostic sensor with the most recent auth headers for inspection/debugging
-- a `switchbot_api.get_auth_headers` service that returns a fresh header set on demand
+1. **Authentication** – You provide your SwitchBot Open API token and secret (from the SwitchBot app's Developer Options). The integration uses HMAC-SHA256 signing for each request.
+2. **Device list** – The integration fetches your devices from `GET /v1.1/devices` on startup and caches them. Both physical devices and infrared remotes are included.
+3. **Device selection** – When using `switchbot_api.send_command`, select your device by name from a dropdown. The device ID, type, and command type are resolved automatically.
+4. **Commands** – Commands are sent via `POST /v1.1/devices/{deviceId}/commands`. For most commands, the parameter defaults to `default` and the command type is auto-detected based on the device type.
 
 ---
 
@@ -42,8 +40,8 @@ The integration also exposes:
 
 ### Option 1: Manual Installation (custom_components)
 
-1. **Download the integration**  
-   - Download the [latest release zip](#releases) or clone this repository.
+1. **Download the integration**
+   - Download the [latest release zip](https://github.com/JGKarlin/switchbot_api/releases) or clone this repository.
 
 2. **Install in Home Assistant**
    - Copy the `switchbot_api` folder into your Home Assistant `custom_components` directory:
@@ -52,7 +50,7 @@ The integration also exposes:
      ```
    - The folder name **must** be `switchbot_api` (matching the integration domain).
 
-3. **Restart Home Assistant**  
+3. **Restart Home Assistant**
    - Restart Home Assistant so it loads the new integration.
 
 4. **Configure**
@@ -80,23 +78,24 @@ The integration also exposes:
 
 ## Device List and IDs
 
-To control a device, you need its **device ID**. The integration provides several ways to get it:
+To see your devices and their IDs:
 
-### 1. Integration Options (easiest)
+### 1. Refresh Button (on the device page)
+
+The **Refresh device list** button on the SwitchBot API device page fetches the latest device list from the API. Click into the button entity to see all devices in the attributes panel, grouped by physical devices and infrared remotes, with names, types, and IDs.
+
+### 2. Integration Options
 
 1. Go to **Settings → Devices & Services**
 2. Find **SwitchBot API** and click **Configure**
-3. The options screen shows a list of all devices with:
-   - Device name  
-   - Device type  
-   - **Device ID** (e.g. `C271111EC0AB`)
+3. The options screen shows all devices grouped by type with their IDs
 
-### 2. `switchbot_api.get_devices` Service
+### 3. `switchbot_api.get_devices` Service
 
 Call the service to fetch the device list programmatically:
 
 ```yaml
-service: switchbot_api.get_devices
+action: switchbot_api.get_devices
 ```
 
 The response includes:
@@ -112,7 +111,7 @@ The response includes:
     {
       "device_id": "02-202312011234-00",
       "device_name": "TV Remote",
-      "device_type": "Infrared remote"
+      "device_type": "Others"
     }
   ],
   "device_count": 2,
@@ -121,135 +120,84 @@ The response includes:
 }
 ```
 
-Use the `device_id` from this list when sending commands.
-
 ---
 
 ## Controlling Devices
 
 ### Using the Service
 
-Use the `switchbot_api.send_command` service:
+Use `switchbot_api.send_command` to control any device:
 
 | Parameter      | Required | Default   | Description                                                                 |
 |----------------|----------|-----------|-----------------------------------------------------------------------------|
-| `device_id`    | Yes      | —         | The SwitchBot device ID (e.g. `C271111EC0AB`)                              |
+| `device_name`  | No*      | —         | Select from the dropdown (e.g. `Door [Smart Lock]`)                        |
+| `device_id`    | No*      | —         | Raw device ID for YAML automations (e.g. `C271111EC0AB`)                   |
 | `command`      | No       | `turnOn`  | The command to send                                                         |
-| `parameter`    | No       | `default` | Command parameter (string or object)                                        |
-| `command_type` | No       | `command` | Usually `command`; use `customize` for infrared remotes with custom keys   |
+| `parameter`    | No       | `default` | Command parameter (string or JSON object)                                   |
+| `command_type` | No       | auto      | Auto-detected: `command` for physical devices, `customize` for IR "Others" |
 
-#### Examples
+*Either `device_name` or `device_id` must be provided.
 
-**Turn on a Bot or Plug:**
+The `command_type` is automatically determined based on the device type — you typically don't need to set it.
+
+### Examples
+
+**Turn on a Bot or Plug (using device name from dropdown):**
 ```yaml
-service: switchbot_api.send_command
+action: switchbot_api.send_command
 data:
-  device_id: "C271111EC0AB"
+  device_name: "Plug Mini [Plug Mini (JP)]"
   command: "turnOn"
 ```
 
-**Turn off:**
+**Lock a Smart Lock (using device ID):**
 ```yaml
-service: switchbot_api.send_command
+action: switchbot_api.send_command
 data:
-  device_id: "C271111EC0AB"
-  command: "turnOff"
+  device_id: "C77BA846E246"
+  command: "lock"
 ```
 
-**Press (Bot only – momentary press):**
+**Set curtain position:**
 ```yaml
-service: switchbot_api.send_command
+action: switchbot_api.send_command
 data:
-  device_id: "C271111EC0AB"
-  command: "press"
-```
-
-**Set curtain position (0–100):**
-```yaml
-service: switchbot_api.send_command
-data:
-  device_id: "YOUR_CURTAIN_DEVICE_ID"
+  device_id: "E3D02BF388C7"
   command: "setPosition"
-  parameter: "50"
+  parameter: "0,ff,50"
 ```
 
-**Infrared remote – power on TV:**
+**Set AC temperature (IR Air Conditioner):**
 ```yaml
-service: switchbot_api.send_command
+action: switchbot_api.send_command
 data:
-  device_id: "02-202312011234-00"
-  command: "turnOn"
-  parameter: "default"
+  device_id: "02-202406031344-38077653"
+  command: "setAll"
+  parameter: "26,2,3,on"
 ```
 
-**Infrared remote – custom key:**
+**Infrared remote – custom button (IR "Others"):**
 ```yaml
-service: switchbot_api.send_command
+action: switchbot_api.send_command
 data:
-  device_id: "02-202312011234-00"
-  command: "customize"
-  parameter: "your_custom_key_name"
+  device_id: "03-202603050254-93377662"
+  command: "Power"
   command_type: "customize"
 ```
 
-### Using REST Commands
-
-You can also control devices via REST using Home Assistant’s [RESTful Command](https://www.home-assistant.io/integrations/rest_command/) or [REST sensor/switch](https://www.home-assistant.io/integrations/rest/) integrations. The SwitchBot API requires signed headers.
-
-The integration exposes a diagnostic sensor with the current auth headers (by default, an entity like `sensor.switchbot_api_auth_headers` unless you renamed it in the entity registry). It also exposes `switchbot_api.get_auth_headers`, which returns a fresh set of headers every time you call it.
-
-#### Example: REST Command in `configuration.yaml`
+### Using in Automations
 
 ```yaml
-rest_command:
-  switchbot_turn_on:
-    url: "https://api.switch-bot.com/v1.1/devices/{{ device_id }}/commands"
-    method: POST
-    headers:
-      Authorization: "{{ state_attr('sensor.switchbot_api_auth_headers', 'authorization') }}"
-      t: "{{ state_attr('sensor.switchbot_api_auth_headers', 't') }}"
-      nonce: "{{ state_attr('sensor.switchbot_api_auth_headers', 'nonce') }}"
-      sign: "{{ state_attr('sensor.switchbot_api_auth_headers', 'sign') }}"
-      Content-Type: "application/json"
-    payload: '{"command":"turnOn","parameter":"default","commandType":"command"}'
-    content_type: "application/json"
-```
-
-Call it with `device_id` in the service data, e.g.:
-```yaml
-service: rest_command.switchbot_turn_on
-data:
-  device_id: "C271111EC0AB"
-```
-
-**Note:** Replace `sensor.switchbot_api_auth_headers` with your actual entity ID. The sensor is diagnostic only and may still be stale for automation-heavy use. For reliable command execution, use `switchbot_api.send_command`, which signs each request at send time.
-
-If you need raw auth values outside this integration, call `switchbot_api.get_auth_headers` and use the returned `authorization`, `t`, `nonce`, `sign`, `generated_at`, and `expires_at` values immediately.
-
-Example in an automation/script using a response variable:
-
-```yaml
-- action: switchbot_api.get_auth_headers
-  response_variable: switchbot_auth
-
-- action: rest_command.some_external_switchbot_call
-  data:
-    authorization: "{{ switchbot_auth['authorization'] }}"
-    t: "{{ switchbot_auth['t'] }}"
-    nonce: "{{ switchbot_auth['nonce'] }}"
-    sign: "{{ switchbot_auth['sign'] }}"
-```
-
-#### Simpler approach: Call the service from REST
-
-Expose the `switchbot_api.send_command` service via the [Home Assistant REST API](https://www.home-assistant.io/api/rest/) and call it from external systems:
-
-```bash
-curl -X POST \
-  -H "Authorization: Bearer YOUR_HA_LONG_LIVED_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"device_id":"C271111EC0AB","command":"turnOn"}' \
-  https://your-ha-instance:8123/api/services/switchbot_api/send_command
+automation:
+  - alias: "Lock door at night"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - action: switchbot_api.send_command
+        data:
+          device_id: "C77BA846E246"
+          command: "lock"
 ```
 
 ---
@@ -263,14 +211,39 @@ curl -X POST \
 | Bot         | `press`     | `default`   | Momentary press          |
 | Curtain     | `turnOn`    | `default`   | Open                     |
 | Curtain     | `turnOff`   | `default`   | Close                    |
-| Curtain     | `setPosition` | `0`–`100` | Set position (percent)   |
+| Curtain     | `setPosition` | `0,ff,50` | index,mode,position      |
 | Lock        | `lock`      | `default`   | Lock                     |
 | Lock        | `unlock`    | `default`   | Unlock                   |
-| IR Remote   | `turnOn`    | `default`   | Depends on remote setup  |
-| IR Remote   | `turnOff`   | `default`   | Depends on remote setup  |
-| IR Remote   | `customize` | key name    | `command_type: customize`|
+| IR AC       | `setAll`    | `26,2,3,on` | temp,mode,fan,power      |
+| IR Remote   | `turnOn`    | `default`   | Turn on (standard)       |
+| IR Others   | (button name) | `default` | `command_type: customize`|
 
-For full details, see the [SwitchBot Open API documentation](https://github.com/OpenWonderLabs/SwitchBotAPI).
+For the full command reference for all 50+ device types, see the [SwitchBot Open API documentation](https://github.com/OpenWonderLabs/SwitchBotAPI).
+
+---
+
+## Entities
+
+The integration creates the following entities on the **SwitchBot API** device:
+
+| Entity | Category | Description |
+|--------|----------|-------------|
+| **API status** | Diagnostic | Shows `connected`, `authentication_failed`, or `connection_error`. Validates credentials every 10 minutes. Auth headers are available in the entity attributes. |
+| **Refresh device list** | Configuration | Press to refresh the cached device list from the API. The full device list is visible in the entity's attributes. |
+
+---
+
+## Updating Credentials
+
+If your SwitchBot token or secret changes:
+
+1. Go to **Settings → Devices & Services**
+2. Find **SwitchBot API**, click the **⋮** menu
+3. Select **Reconfigure**
+4. Enter your new token and secret
+5. The integration validates the new credentials and reloads automatically
+
+The **API status** sensor will show `authentication_failed` within 10 minutes if credentials become invalid.
 
 ---
 
@@ -287,7 +260,7 @@ For full details, see the [SwitchBot Open API documentation](https://github.com/
 
 ## Requirements
 
-- Home Assistant 2024.x or later (or compatible version)
+- Home Assistant 2024.1.0 or later
 - SwitchBot account with Open API token and secret
 - Internet access (API is cloud-based)
 
@@ -295,20 +268,12 @@ For full details, see the [SwitchBot Open API documentation](https://github.com/
 
 ## Troubleshooting
 
-- **Invalid token or secret** – Regenerate your token in the SwitchBot app and re-enter it in the integration.
-- **Device not responding** – Confirm the device is online in the SwitchBot app and that you’re using the correct `device_id`.
+- **Invalid token or secret** – Regenerate your token in the SwitchBot app. Use **Reconfigure** (⋮ menu on the integration card) to update credentials without removing the integration.
+- **Device not responding** – Confirm the device is online in the SwitchBot app and that you're using the correct `device_id`.
 - **Command not working** – Check the [SwitchBot API docs](https://github.com/OpenWonderLabs/SwitchBotAPI) for your device type and supported commands.
-- **REST auth fails** – Auth headers expire quickly. Use `switchbot_api.send_command` when possible, or fetch a fresh set with `switchbot_api.get_auth_headers` immediately before making the external request.
-
----
-
-## Publishing to GitHub
-
-1. Create a new public repository on GitHub (e.g. `switchbot_api`)
-2. (Optional) Update the Releases URL in this README if you fork the repo
-3. Add repository description and topics: `home-assistant`, `switchbot`, `custom-integration`, `iot`
-4. Push your code and create a release: tag it (e.g. `v2.2.2`) and attach a `switchbot_api.zip` containing the `switchbot_api` folder as an asset
-5. For HACS: Users can add your repo as a custom repository (HACS → Integrations → ⋮ → Custom repositories) with `content_in_root: true`
+- **Device dropdown is empty** – Press the **Refresh device list** button on the device page, then reload the integration.
+- **API status shows `authentication_failed`** – Your token or secret has changed. Use Reconfigure to update them.
+- **API status shows `connection_error`** – Check your internet connection. The SwitchBot API is cloud-based and requires internet access.
 
 ---
 
