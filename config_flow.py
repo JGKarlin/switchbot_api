@@ -80,6 +80,35 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ):
+        """Handle credential update when the user reconfigures the integration."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            try:
+                await validate_input(self.hass, user_input)
+                return self.async_update_reload_and_abort(
+                    self._get_reconfigure_entry(),
+                    data={
+                        CONF_TOKEN: user_input[CONF_TOKEN].strip(),
+                        CONF_SECRET: user_input[CONF_SECRET].strip(),
+                    },
+                )
+            except InvalidAuth:
+                errors["base"] = "invalid_auth"
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except Exception:
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=DATA_SCHEMA,
+            errors=errors,
+        )
+
     @staticmethod
     @callback
     def async_get_options_flow(
@@ -90,34 +119,42 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class SwitchBotAuthOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle SwitchBot API options - displays device list when user opens integration."""
+    """Handle SwitchBot API options - displays device summary when user opens integration."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        """Display device list when user opens integration config."""
+        """Display device summary when user opens integration config."""
         if user_input is not None:
             return self.async_create_entry(data={})
 
         try:
             result = await fetch_devices(self.hass, self.config_entry)
-            if result["devices"]:
-                lines = [
-                    (
-                        f"{index}. {device['device_name']} "
-                        f"[{device['device_type']}]"
-                        f"\n    ID: {device['device_id']}"
-                    )
-                    for index, device in enumerate(result["devices"], start=1)
-                ]
-                devices_text = "\n\n".join(lines)
-            else:
-                devices_text = "No devices found in this SwitchBot account."
         except SwitchBotApiError as exc:
             result = {
                 "device_count": 0,
                 "physical_device_count": 0,
                 "infrared_remote_count": 0,
+                "devices": [],
             }
-            devices_text = f"Could not fetch devices: {exc}"
+            _LOGGER.warning("Could not fetch devices in options flow: %s", exc)
+
+        physical = []
+        infrared = []
+        for device in result.get("devices", []):
+            line = f"• **{device['device_name']}** ({device['device_type']}) `{device['device_id']}`"
+            if device.get("is_infrared"):
+                infrared.append(line)
+            else:
+                physical.append(line)
+
+        sections = []
+        if physical:
+            sections.append("**Physical devices:**\n" + "\n".join(physical))
+        if infrared:
+            sections.append("**Infrared remotes:**\n" + "\n".join(infrared))
+        if not sections:
+            sections.append("No devices found in this SwitchBot account.")
+
+        devices_text = "\n\n".join(sections)
 
         return self.async_show_form(
             step_id="init",

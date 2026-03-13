@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 
-from .api import generate_auth_payload
+from .api import SwitchBotApiError, async_request, generate_auth_payload
 from .const import (
+    AUTH_CHECK_INTERVAL_SECONDS,
     AUTH_HEADER_TTL_SECONDS,
     CONF_SECRET,
     CONF_TOKEN,
@@ -21,11 +23,19 @@ from .const import (
     SCAN_INTERVAL_SECONDS,
 )
 
-SCAN_INTERVAL = timedelta(seconds=SCAN_INTERVAL_SECONDS)
+_LOGGER = logging.getLogger(__name__)
+
+HEADER_REFRESH_INTERVAL = timedelta(seconds=SCAN_INTERVAL_SECONDS)
+AUTH_CHECK_INTERVAL = timedelta(seconds=AUTH_CHECK_INTERVAL_SECONDS)
+
 ENTITY_DESCRIPTION = SensorEntityDescription(
     key="headers",
     icon="mdi:key-chain",
 )
+
+STATE_CONNECTED = "connected"
+STATE_AUTH_FAILED = "authentication_failed"
+STATE_CONNECTION_ERROR = "connection_error"
 
 
 async def async_setup_entry(
@@ -38,10 +48,18 @@ async def async_setup_entry(
 
 
 class SwitchBotAuthSensor(SensorEntity):
-    """Representation of a SwitchBot API Sensor."""
+    """SwitchBot API authentication status and header generator.
+
+    State reflects whether the API credentials are valid:
+    - connected: credentials validated successfully
+    - authentication_failed: token or secret is invalid
+    - connection_error: cannot reach the SwitchBot API
+
+    Attributes contain fresh auth headers regenerated every 55 seconds.
+    """
 
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
     _attr_should_poll = False
     entity_description = ENTITY_DESCRIPTION
 
@@ -53,9 +71,7 @@ class SwitchBotAuthSensor(SensorEntity):
         self._secret = config_entry.data[CONF_SECRET]
         self._attr_native_value = None
         self._attr_extra_state_attributes = {}
-        self._attr_name = "SwitchBot API Auth Headers"
-        # Keep the legacy unique ID suffix so existing entity registry entries
-        # continue to map to the same entity after the domain rename.
+        self._attr_name = "API status"
         self._attr_unique_id = f"{config_entry.entry_id}_switchbot_auth"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, config_entry.entry_id)},
@@ -65,32 +81,61 @@ class SwitchBotAuthSensor(SensorEntity):
         )
 
     async def async_added_to_hass(self) -> None:
-        """Handle added to Hass."""
-        await self.async_update_auth()
+        """Start header refresh and auth check timers."""
+        self._refresh_headers()
+        await self._check_auth()
+
         self.async_on_remove(
             async_track_time_interval(
                 self._hass,
-                self.async_update_callback,
-                SCAN_INTERVAL,
+                self._header_refresh_callback,
+                HEADER_REFRESH_INTERVAL,
+            )
+        )
+        self.async_on_remove(
+            async_track_time_interval(
+                self._hass,
+                self._auth_check_callback,
+                AUTH_CHECK_INTERVAL,
             )
         )
 
-    async def async_update_callback(self, _):
-        """Handle the interval update callback."""
-        await self.async_update_auth()
+    async def _header_refresh_callback(self, _) -> None:
+        """Regenerate auth headers on the 55-second interval."""
+        self._refresh_headers()
+        self.async_write_ha_state()
+
+    async def _auth_check_callback(self, _) -> None:
+        """Validate credentials against the API on the 10-minute interval."""
+        await self._check_auth()
 
     async def async_update(self) -> None:
-        """Refresh auth headers on manual entity updates."""
-        await self.async_update_auth()
+        """Handle manual entity update -- refresh headers and validate."""
+        self._refresh_headers()
+        await self._check_auth()
 
-    async def async_update_auth(self):
-        """Update authentication parameters asynchronously."""
+    def _refresh_headers(self) -> None:
+        """Generate fresh auth headers and store in attributes."""
         auth = generate_auth_payload(
             self._token,
             self._secret,
             ttl_seconds=AUTH_HEADER_TTL_SECONDS,
         )
-
-        self._attr_native_value = "ready"
         self._attr_extra_state_attributes = auth
+
+    async def _check_auth(self) -> None:
+        """Validate credentials by calling the SwitchBot API."""
+        try:
+            await async_request(
+                self._hass, "GET", "/devices", self._token, self._secret
+            )
+            self._attr_native_value = STATE_CONNECTED
+        except SwitchBotApiError as exc:
+            if exc.auth_failed:
+                self._attr_native_value = STATE_AUTH_FAILED
+                _LOGGER.warning("SwitchBot API authentication failed -- check your token and secret")
+            else:
+                self._attr_native_value = STATE_CONNECTION_ERROR
+                _LOGGER.warning("SwitchBot API connection error: %s", exc)
+
         self.async_write_ha_state()

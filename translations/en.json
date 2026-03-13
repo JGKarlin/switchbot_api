@@ -9,6 +9,14 @@
           "token": "Token",
           "secret": "Secret"
         }
+      },
+      "reconfigure": {
+        "title": "Update SwitchBot API credentials",
+        "description": "Enter your new token and secret. The integration will validate them and reload automatically.",
+        "data": {
+          "token": "Token",
+          "secret": "Secret"
+        }
       }
     },
     "error": {
@@ -17,14 +25,15 @@
       "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "This SwitchBot authentication helper is already configured."
+      "already_configured": "This SwitchBot authentication helper is already configured.",
+      "reconfigure_successful": "Credentials updated successfully."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "SwitchBot devices",
-        "description": "Found {device_count} devices for this account.\n\nPhysical devices: {physical_device_count}\nInfrared remotes: {infrared_remote_count}\n\n{devices}\n\nUse the switchbot_api.send_command action with the device ID to control a device."
+        "description": "Found **{device_count}** devices ({physical_device_count} physical, {infrared_remote_count} infrared remotes).\n\n{devices}\n\nPress **Refresh device list** on the device page to update the cached device list."
       }
     }
   },
@@ -39,23 +48,27 @@
     },
     "send_command": {
       "name": "Send command",
-      "description": "Send a SwitchBot command to a specific device.",
+      "description": "Send a SwitchBot command to a device. Select your device by name from the dropdown — the device ID, available commands, and parameters are determined automatically based on the device type. Run 'Get devices' first if the dropdown is empty.",
       "fields": {
+        "device_name": {
+          "name": "Device",
+          "description": "Select the device by name. The list is populated from your SwitchBot account. If the list is empty, run the 'Get devices' action first to refresh."
+        },
         "device_id": {
-          "name": "Device ID",
-          "description": "The SwitchBot device ID to target."
+          "name": "Device ID (advanced)",
+          "description": "Use this instead of the device name if you know the raw device ID. Only needed if the device dropdown is not populated."
         },
         "command": {
           "name": "Command",
-          "description": "The command to send, for example `turnOn` or `turnOff`."
+          "description": "The command to send. Available commands depend on the selected device type. For most devices, choose from: turnOn, turnOff, toggle, etc. For IR 'Others' remotes, enter the custom button name you defined in the SwitchBot app."
         },
         "parameter": {
           "name": "Parameter",
-          "description": "The command parameter. Most commands use `default`."
+          "description": "The command parameter. Many commands use 'default' automatically. For commands that need input (e.g. setBrightness, setColor, setPosition), enter the value here. Leave blank to use the default."
         },
         "command_type": {
           "name": "Command type",
-          "description": "The command type. Most commands use `command`."
+          "description": "Automatically set to 'command' for physical devices or 'customize' for IR 'Others' remotes. Only change this if you need to override the automatic detection."
         }
       }
     }

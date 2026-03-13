@@ -1,7 +1,7 @@
 {
   "domain": "switchbot_api",
   "name": "SwitchBot API",
-  "version": "2.2.2",
+  "version": "3.0.0",
   "config_flow": true,
   "single_config_entry": true,
   "documentation": "",

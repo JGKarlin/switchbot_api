@@ -4,20 +4,28 @@ get_auth_headers:
 
 send_command:
   fields:
+    device_name:
+      required: false
+      example: "Office Curtain [Curtain]"
+      selector:
+        text:
     device_id:
-      required: true
+      required: false
       example: C271111EC0AB
       selector:
         text:
     command:
+      required: false
       example: turnOn
       selector:
         text:
     parameter:
+      required: false
       example: default
       selector:
         text:
     command_type:
+      required: false
       example: command
       selector:
         text:
