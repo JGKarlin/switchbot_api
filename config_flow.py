@@ -11,10 +11,12 @@ from homeassistant import config_entries, exceptions
 from homeassistant.core import callback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import selector
 
 from .api import SwitchBotApiError, async_request
 from .const import CONF_SECRET, CONF_TOKEN, DOMAIN
-from .services import fetch_devices
+from .service_generator import merge_ir_buttons, parse_button_lines
+from .services import async_regenerate_services, fetch_devices, get_ir_buttons
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -119,12 +121,23 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class SwitchBotAuthOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle SwitchBot API options - displays device summary when user opens integration."""
+    """Device summary and custom IR button registration."""
+
+    def __init__(self) -> None:
+        """Initialize the flow."""
+        self._ir_device_id: str | None = None
+        self._ir_devices: list[dict[str, Any]] = []
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        """Display device summary when user opens integration config."""
+        """Offer the device summary or the IR button editor."""
+        return self.async_show_menu(
+            step_id="init", menu_options=["devices", "ir_buttons"]
+        )
+
+    async def async_step_devices(self, user_input: dict[str, Any] | None = None):
+        """Display the device summary."""
         if user_input is not None:
-            return self.async_create_entry(data={})
+            return self.async_create_entry(data=dict(self.config_entry.options))
 
         try:
             result = await fetch_devices(self.hass, self.config_entry)
@@ -140,7 +153,10 @@ class SwitchBotAuthOptionsFlowHandler(config_entries.OptionsFlow):
         physical = []
         infrared = []
         for device in result.get("devices", []):
-            line = f"• **{device['device_name']}** ({device['device_type']}) `{device['device_id']}`"
+            line = (
+                f"• **{device['device_name']}** ({device['device_type']}) "
+                f"`{device['device_id']}`"
+            )
             if device.get("is_infrared"):
                 infrared.append(line)
             else:
@@ -154,17 +170,79 @@ class SwitchBotAuthOptionsFlowHandler(config_entries.OptionsFlow):
         if not sections:
             sections.append("No devices found in this SwitchBot account.")
 
-        devices_text = "\n\n".join(sections)
-
         return self.async_show_form(
-            step_id="init",
+            step_id="devices",
             data_schema=vol.Schema({}),
             description_placeholders={
                 "device_count": str(result["device_count"]),
                 "physical_device_count": str(result["physical_device_count"]),
                 "infrared_remote_count": str(result["infrared_remote_count"]),
-                "devices": devices_text,
+                "devices": "\n\n".join(sections),
             },
+        )
+
+    async def async_step_ir_buttons(self, user_input: dict[str, Any] | None = None):
+        """Pick which infrared remote to edit."""
+        try:
+            result = await fetch_devices(self.hass, self.config_entry)
+        except SwitchBotApiError:
+            return self.async_abort(reason="cannot_connect")
+
+        self._ir_devices = [
+            d for d in result.get("devices", []) if d.get("is_infrared")
+        ]
+        if not self._ir_devices:
+            return self.async_abort(reason="no_ir_devices")
+
+        if user_input is not None:
+            self._ir_device_id = user_input["device_id"]
+            return await self.async_step_ir_edit()
+
+        options = [
+            {"value": d["device_id"], "label": f"{d['device_name']} [{d['device_type']}]"}
+            for d in self._ir_devices
+        ]
+        return self.async_show_form(
+            step_id="ir_buttons",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("device_id"): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=options)
+                    )
+                }
+            ),
+        )
+
+    async def async_step_ir_edit(self, user_input: dict[str, Any] | None = None):
+        """Edit one remote's custom button names."""
+        device_id = self._ir_device_id
+        device = next(
+            (d for d in self._ir_devices if d["device_id"] == device_id), None
+        )
+        device_name = device["device_name"] if device else device_id
+
+        if user_input is not None:
+            names = parse_button_lines(user_input.get("buttons", ""))
+            merged = merge_ir_buttons(self.config_entry.options, device_id, names)
+            self.hass.config_entries.async_update_entry(
+                self.config_entry, options=merged
+            )
+            await async_regenerate_services(self.hass)
+            return self.async_create_entry(data=merged)
+
+        current = get_ir_buttons(self.config_entry).get(device_id, [])
+        return self.async_show_form(
+            step_id="ir_edit",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        "buttons", default="\n".join(current)
+                    ): selector.TextSelector(
+                        selector.TextSelectorConfig(multiline=True)
+                    )
+                }
+            ),
+            description_placeholders={"device_name": device_name},
         )
 
 

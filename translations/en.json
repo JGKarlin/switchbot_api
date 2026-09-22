@@ -32,9 +32,34 @@
   "options": {
     "step": {
       "init": {
+        "title": "SwitchBot API",
+        "menu_options": {
+          "devices": "View device list",
+          "ir_buttons": "Custom infrared buttons"
+        }
+      },
+      "devices": {
         "title": "SwitchBot devices",
         "description": "Found **{device_count}** devices ({physical_device_count} physical, {infrared_remote_count} infrared remotes).\n\n{devices}\n\nPress **Refresh device list** on the device page to update the cached device list."
+      },
+      "ir_buttons": {
+        "title": "Custom infrared buttons",
+        "description": "Pick the infrared remote whose custom buttons you want to register.",
+        "data": {
+          "device_id": "Infrared remote"
+        }
+      },
+      "ir_edit": {
+        "title": "Buttons for {device_name}",
+        "description": "Enter the custom button names exactly as they appear in the SwitchBot app, one per line. Names are case-sensitive. These become a dropdown on this remote's action.",
+        "data": {
+          "buttons": "Button names"
+        }
       }
+    },
+    "abort": {
+      "cannot_connect": "Could not connect to the SwitchBot API",
+      "no_ir_devices": "No infrared remotes found in this SwitchBot account."
     }
   },
   "services": {

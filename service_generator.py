@@ -58,6 +58,42 @@ def slugify(text: str) -> str:
     return slug or "device"
 
 
+def parse_button_lines(text: str) -> list[str]:
+    """Split a textarea value into button names, preserving case."""
+    return [line.strip() for line in (text or "").splitlines() if line.strip()]
+
+
+def merge_ir_buttons(
+    options: Mapping[str, Any], device_id: str, names: Iterable[str]
+) -> dict[str, Any]:
+    """Return a new options dict with this device's button names replaced.
+
+    Merges rather than replaces: OptionsFlow.async_create_entry overwrites the
+    whole options dict, which would otherwise erase service_aliases.
+    """
+    cleaned: list[str] = []
+    for name in names:
+        stripped = name.strip()
+        if stripped and stripped not in cleaned:
+            cleaned.append(stripped)
+
+    buttons = {
+        key: list(value)
+        for key, value in dict(options.get(CONF_IR_BUTTONS, {})).items()
+    }
+    if cleaned:
+        buttons[device_id] = cleaned
+    else:
+        buttons.pop(device_id, None)
+
+    merged = dict(options)
+    if buttons:
+        merged[CONF_IR_BUTTONS] = buttons
+    else:
+        merged.pop(CONF_IR_BUTTONS, None)
+    return merged
+
+
 def _custom_button_commands(names: Iterable[str]) -> tuple[CommandDef, ...]:
     return tuple(
         CommandDef(
