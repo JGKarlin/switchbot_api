@@ -10,6 +10,7 @@ from homeassistant.helpers import entity_registry as er
 from .const import DOMAIN
 from .services import (
     async_refresh_device_cache,
+    async_regenerate_services,
     async_reregister_send_command,
     async_setup_services,
     async_unload_services,
@@ -31,9 +32,11 @@ async def async_setup(hass: HomeAssistant, _config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up SwitchBot API from a config entry."""
     _cleanup_deprecated_entities(hass, entry)
-    await async_refresh_device_cache(hass)
+    cache_ok = await async_refresh_device_cache(hass)
     await async_setup_services(hass)
     await async_reregister_send_command(hass)
+    if cache_ok:
+        await async_regenerate_services(hass)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 

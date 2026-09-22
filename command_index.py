@@ -1,0 +1,478 @@
+"""SwitchBot device command index.
+
+GENERATED FILE - do not edit by hand.
+Regenerate with: python3 tools/generate_command_index.py
+
+Source: https://github.com/OpenWonderLabs/SwitchBotAPI
+Hand-written labels and schema fixes belong in command_overlay.py, which is
+merged over this data and survives regeneration.
+"""
+
+from __future__ import annotations
+
+from .command_types import CommandDef, ParamField
+
+COMMAND_INDEX: dict[str, list[CommandDef]] = {
+    "AI Art Frame": [
+        CommandDef(command='next', label='Next', description='Switch to the next image', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='previous', label='Previous', description='Switch to the previous image', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='uploadImage', label='Upload image', description='Upload an image (choose one of imageUrl / imageBase64)', command_type='command', parameter='', fields=(ParamField(key='imageUrl', label='Image url', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='imageBase64', label='Image base64', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "Air Purifier PM2.5": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the mode. mode_int, 1, normal or fan mode; 2, auto mode; 3, sleep mode; 4, pet mode; fan_level_int, the fan level can only be set if mode_int is set to 1, 1~3', command_type='command', parameter='', fields=(ParamField(key='mode', label='Mode', kind='select', required=True, default=None, minimum=None, maximum=None, unit=None, options=(('1', 'Normal or fan mode'), ('2', 'Auto mode'), ('3', 'Sleep mode'), ('4', 'Pet mode')), value_type='auto', help=''), ParamField(key='fanGear', label='Fan gear', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='setChildLock', label='Set child lock', description='enable or disable child lock. 1, enable; 0, disable', command_type='command', parameter='', fields=(ParamField(key='0_or', label='0 or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='enable or disable child lock. 1, enable; 0, disable'),), encoding='scalar'),
+    ],
+    "Air Purifier Table PM2.5": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the mode. mode_int, 1, normal or fan mode; 2, auto mode; 3, sleep mode; 4, pet mode; fan_level_int, the fan level can only be set if mode_int is set to 1, 1~3', command_type='command', parameter='', fields=(ParamField(key='mode', label='Mode', kind='select', required=True, default=None, minimum=None, maximum=None, unit=None, options=(('1', 'Normal or fan mode'), ('2', 'Auto mode'), ('3', 'Sleep mode'), ('4', 'Pet mode')), value_type='auto', help=''), ParamField(key='fanGear', label='Fan gear', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='setChildLock', label='Set child lock', description='enable or disable child lock. 1, enable; 0, disable', command_type='command', parameter='', fields=(ParamField(key='0_or', label='0 or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='enable or disable child lock. 1, enable; 0, disable'),), encoding='scalar'),
+    ],
+    "Air Purifier Table VOC": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the mode. mode_int, 1, normal or fan mode; 2, auto mode; 3, sleep mode; 4, pet mode; fan_level_int, the fan level can only be set if mode_int is set to 1, 1~3', command_type='command', parameter='', fields=(ParamField(key='mode', label='Mode', kind='select', required=True, default=None, minimum=None, maximum=None, unit=None, options=(('1', 'Normal or fan mode'), ('2', 'Auto mode'), ('3', 'Sleep mode'), ('4', 'Pet mode')), value_type='auto', help=''), ParamField(key='fanGear', label='Fan gear', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='setChildLock', label='Set child lock', description='enable or disable child lock. 1, enable; 0, disable', command_type='command', parameter='', fields=(ParamField(key='0_or', label='0 or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='enable or disable child lock. 1, enable; 0, disable'),), encoding='scalar'),
+    ],
+    "Air Purifier VOC": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the mode. mode_int, 1, normal or fan mode; 2, auto mode; 3, sleep mode; 4, pet mode; fan_level_int, the fan level can only be set if mode_int is set to 1, 1~3', command_type='command', parameter='', fields=(ParamField(key='mode', label='Mode', kind='select', required=True, default=None, minimum=None, maximum=None, unit=None, options=(('1', 'Normal or fan mode'), ('2', 'Auto mode'), ('3', 'Sleep mode'), ('4', 'Pet mode')), value_type='auto', help=''), ParamField(key='fanGear', label='Fan gear', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='setChildLock', label='Set child lock', description='enable or disable child lock. 1, enable; 0, disable', command_type='command', parameter='', fields=(ParamField(key='0_or', label='0 or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='enable or disable child lock. 1, enable; 0, disable'),), encoding='scalar'),
+    ],
+    "Battery Circulator Fan": [
+        CommandDef(command='turnOff', label='Turn off', description='Set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='Set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setNightLightMode', label='Set night light mode', description='off, turn off nightlight, 1, bright 2, dim', command_type='command', parameter='', fields=(ParamField(key='off', label='Off', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='value', label='Value', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or', label='Or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindMode', label='Set wind mode', description='Set fan mode. direct: direct mode. natural: natural mode. sleep: sleep mode. baby: ultra quiet mode', command_type='command', parameter='', fields=(ParamField(key='direct', label='Direct', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='natural', label='Natural', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='sleep', label='Sleep', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or_baby', label='Or baby', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindSpeed', label='Set wind speed', description='Set fan speed.1~100', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='Set fan speed.1~100'),), encoding='scalar'),
+        CommandDef(command='closeDelay', label='Close delay', description='Set fan close time', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=36000, unit=None, options=(), value_type='auto', help='Set fan close time'),), encoding='scalar'),
+    ],
+    "Battery Circulator Fan 2 Pro": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setNightLightMode', label='Set night light mode', description='off, turn off; 0, bright; 1, soft', command_type='command', parameter='', fields=(ParamField(key='off', label='Off', kind='select', required=True, default=None, minimum=None, maximum=None, unit=None, options=(('0', 'Bright'), ('1', 'Soft')), value_type='auto', help=''), ParamField(key='value', label='Value', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or', label='Or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindMode', label='Set wind mode', description='set fan mode', command_type='command', parameter='', fields=(ParamField(key='direct', label='Direct', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='natural', label='Natural', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='sleep', label='Sleep', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or_hurricane', label='Or hurricane', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindSpeed', label='Set wind speed', description='set fan speed', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='set fan speed'),), encoding='scalar'),
+    ],
+    "Blind Tilt": [
+        CommandDef(command='setPosition', label='Set position', description='direction: up/down position: 0~100 (0 means closed, 100 means open, it MUST be set to a multiple of 2. e.g. up;48 or up; 36)', command_type='command', parameter='', fields=(ParamField(key='direction_position', label='Direction position', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='direction: up/down position: 0~100 (0 means closed, 100 means open, it MUST be set to a multiple of 2. e.g. up;48 or up; 36)'),), encoding='scalar'),
+        CommandDef(command='fullyOpen', label='Fully open', description='Set the position of Blind Tilt to open, equivalent to setting the position to up;100 or down;100', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='closeUp', label='Close up', description='Set the position of Blind Tilt to closed up, equivalent to setting the position to up;0', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='closeDown', label='Close down', description='Set the position of Blind Tilt to closed down, equivalent to setting the position to down;0', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Bot": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='press', label='Press', description='trigger press', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Candle Warmer Lamp": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+    ],
+    "Ceiling Light": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set the color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set the color temperature'),), encoding='scalar'),
+    ],
+    "Ceiling Light Pro": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set the color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set the color temperature'),), encoding='scalar'),
+    ],
+    "Circulator Fan": [
+        CommandDef(command='turnOff', label='Turn off', description='Set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='Set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setNightLightMode', label='Set night light mode', description='off, turn off nightlight, 1, bright 2, dim', command_type='command', parameter='', fields=(ParamField(key='off', label='Off', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='value', label='Value', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or', label='Or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindMode', label='Set wind mode', description='Set fan mode. direct: direct mode. natural: natural mode. sleep: sleep mode. baby: ultra quiet mode', command_type='command', parameter='', fields=(ParamField(key='direct', label='Direct', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='natural', label='Natural', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='sleep', label='Sleep', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or_baby', label='Or baby', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindSpeed', label='Set wind speed', description='Set fan speed.1~100', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='Set fan speed.1~100'),), encoding='scalar'),
+        CommandDef(command='closeDelay', label='Close delay', description='Set fan close time', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=36000, unit=None, options=(), value_type='auto', help='Set fan close time'),), encoding='scalar'),
+    ],
+    "Color Bulb": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set color temperature'),), encoding='scalar'),
+    ],
+    "Curtain": [
+        CommandDef(command='setPosition', label='Set position', description='mode: 0 (Performance Mode), 1 (Silent Mode), ff (default mode) position: 0~100 (0 means open, 100 means closed)', command_type='command', parameter='', fields=(ParamField(key='index', label='Index', kind='number', required=True, default='0', minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='mode', label='Mode', kind='select', required=True, default='ff', minimum=None, maximum=None, unit=None, options=(('0', 'Performance Mode'), ('1', 'Silent Mode'), ('ff', 'Default mode')), value_type='auto', help=''), ParamField(key='position', label='Position', kind='number', required=True, default='80', minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='turnOff', label='Turn off', description='equivalent to set position to 100', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='equivalent to set position to 0', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='pause', label='Pause', description='set to PAUSE state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Curtain 3": [
+        CommandDef(command='setPosition', label='Set position', description='mode: 0 (Performance Mode), 1 (Silent Mode), ff (default mode) position: 0~100 (0 means open, 100 means closed)', command_type='command', parameter='', fields=(ParamField(key='index', label='Index', kind='number', required=True, default='0', minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='mode', label='Mode', kind='select', required=True, default='ff', minimum=None, maximum=None, unit=None, options=(('0', 'Performance Mode'), ('1', 'Silent Mode'), ('ff', 'Default mode')), value_type='auto', help=''), ParamField(key='position', label='Position', kind='number', required=True, default='80', minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='turnOff', label='Turn off', description='equivalent to set position to 100', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='equivalent to set position to 0', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='pause', label='Pause', description='set to PAUSE state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Floor Cleaning Robot S10": [
+        CommandDef(command='startClean', label='Start clean', description='start cleaning. action, the cleaning mode, _sweep_ or _sweep_mop_. fanLevel, the vacuum level, 1-4. waterLevel, the mop moisture level, 1-2. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='action', label='Action', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='param', label='Param', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='waterLevel', label='Water level', kind='number', required=True, default=None, minimum=1, maximum=2, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='addWaterForHumi', label='Add water for humi', description='refill the mind blowing Evaporative Humidifier (Auto-refill).', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='pause', label='Pause', description='pause.', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to Auto-empty Station and charge.', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setVolume', label='Set volume', description='set volume, 1-100', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set volume, 1-100'),), encoding='scalar'),
+        CommandDef(command='selfClean', label='Self clean', description='mode 1, wash the mop. mode 2, dry itself. mode 3, terminate.', command_type='command', parameter='', fields=(ParamField(key='1_or_2_or', label='1 or 2 or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='mode 1, wash the mop. mode 2, dry itself. mode 3, terminate.'),), encoding='scalar'),
+        CommandDef(command='changeParam', label='Change param', description='fanLevel, the vacuum level, 1-4. waterLevel, the mop moisture level, 1-2. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='waterLevel', label='Water level', kind='number', required=True, default=None, minimum=1, maximum=2, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "Floor Lamp": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set color temperature'),), encoding='scalar'),
+    ],
+    "Garage Door Opener": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Humidifier": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='auto, set to Auto Mode, 101, set atomization efficiency to 34%, 102, set atomization efficiency to 67%, 103, set atomization efficiency to 100%', command_type='command', parameter='', fields=(ParamField(key='auto_or_101_or_102_or_103_or_0', label='Auto or 101 or 102 or 103 or 0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='auto, set to Auto Mode, 101, set atomization efficiency to 34%, 102, set atomization efficiency to 67%, 103, set atomization efficiency to 100%'),), encoding='scalar'),
+    ],
+    "Humidifier2": [
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the mode. mode_int, 1, level 4; 2, level 3; 3, level 2; 4, level 1; 5, humidity mode; 6, sleep mode; 7, auto mode; 8, drying mode; targetHumidify, the target humidity level in percentage, 0~100.', command_type='command', parameter='', fields=(ParamField(key='mode', label='Mode', kind='select', required=True, default=None, minimum=None, maximum=None, unit=None, options=(('1', 'Level 4'), ('2', 'Level 3'), ('3', 'Level 2'), ('4', 'Level 1'), ('5', 'Humidity mode'), ('6', 'Sleep mode'), ('7', 'Auto mode'), ('8', 'Drying mode')), value_type='auto', help=''), ParamField(key='targetHumidify', label='Target humidify', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='setChildLock', label='Set child lock', description='enable or disable child lock. true, enable; false, disable', command_type='command', parameter='', fields=(ParamField(key='enabled', label='Enabled', kind='boolean', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='bool', help='enable or disable child lock. true, enable; false, disable'),), encoding='scalar'),
+    ],
+    "K10+": [
+        CommandDef(command='start', label='Start', description='start vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='stop', label='Stop', description='stop vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to charging dock', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='PowLevel', label='Pow level', description='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=3, unit=None, options=(), value_type='auto', help='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)'),), encoding='scalar'),
+    ],
+    "K10+ Pro": [
+        CommandDef(command='start', label='Start', description='start vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='stop', label='Stop', description='stop vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to charging dock', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='PowLevel', label='Pow level', description='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=3, unit=None, options=(), value_type='auto', help='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)'),), encoding='scalar'),
+    ],
+    "K11+": [
+        CommandDef(command='startClean', label='Start clean', description='start cleaning. action_str, the cleaning mode, _sweep_ or _mop_. fanLevel, the vacuum level, 1-4. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='action', label='Action', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='param', label='Param', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='pause', label='Pause', description='pause.', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to Auto-empty Station and charge.', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setVolume', label='Set volume', description='set volume, 1-100', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set volume, 1-100'),), encoding='scalar'),
+        CommandDef(command='changeParam', label='Change param', description='fanLevel, the vacuum level, 1-4. waterLevel, the mop moisture level, 1-2. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='waterLevel', label='Water level', kind='number', required=True, default=None, minimum=1, maximum=2, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "K20+ Pro": [
+        CommandDef(command='startClean', label='Start clean', description='start cleaning. action_str, the cleaning mode, _sweep_ or _mop_. fanLevel, the vacuum level, 1-4. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='action', label='Action', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='param', label='Param', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='pause', label='Pause', description='pause cleaning', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to charging dock', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setVolume', label='Set volume', description='set the robot volume', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set the robot volume'),), encoding='scalar'),
+        CommandDef(command='changeParam', label='Change param', description='change clean parameters. fan_level_int, the vacuum level, 1-4; water_level_int, the mop moisture level, 1-2; times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='fanLevel', label='Fan level', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='waterLevel', label='Water level', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "Kata Friends": [
+        CommandDef(command='mode', label='Mode', description='set mode', command_type='command', parameter='', fields=(ParamField(key='Normal', label='Normal', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='Standby', label='Standby', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or_Sleep', label='Or sleep', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='childLock', label='Child lock', description='set child lock state', command_type='command', parameter='', fields=(ParamField(key='on_or_off', label='On or off', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set child lock state'),), encoding='scalar'),
+        CommandDef(command='backHome', label='Back home', description='return home', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='pictureTaking', label='Picture taking', description='set album photo-taking switch', command_type='command', parameter='', fields=(ParamField(key='on_or_off', label='On or off', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set album photo-taking switch'),), encoding='scalar'),
+        CommandDef(command='snapshots', label='Snapshots', description='set random snapshot switch', command_type='command', parameter='', fields=(ParamField(key='on_or_off', label='On or off', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set random snapshot switch'),), encoding='scalar'),
+        CommandDef(command='talk', label='Talk', description='set talk feature switch', command_type='command', parameter='', fields=(ParamField(key='on_or_off', label='On or off', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set talk feature switch'),), encoding='scalar'),
+    ],
+    "Keypad": [
+        CommandDef(command='createKey', label='Create key', description='create a new passcode', command_type='command', parameter='', fields=(ParamField(key='name', label='Name', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='type', label='Type', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='password', label='Password', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='startTime', label='Start time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='endTime', label='End time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='deleteKey', label='Delete key', description='delete an existing passcode', command_type='command', parameter='', fields=(ParamField(key='id', label='Id', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''),), encoding='json'),
+    ],
+    "Keypad Touch": [
+        CommandDef(command='createKey', label='Create key', description='create a new passcode', command_type='command', parameter='', fields=(ParamField(key='name', label='Name', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='type', label='Type', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='password', label='Password', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='startTime', label='Start time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='endTime', label='End time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='deleteKey', label='Delete key', description='delete an existing passcode', command_type='command', parameter='', fields=(ParamField(key='id', label='Id', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''),), encoding='json'),
+    ],
+    "Keypad Vision": [
+        CommandDef(command='createKey', label='Create key', description='create a new passcode', command_type='command', parameter='', fields=(ParamField(key='name', label='Name', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='type', label='Type', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='password', label='Password', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='startTime', label='Start time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='endTime', label='End time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='deleteKey', label='Delete key', description='delete an existing passcode', command_type='command', parameter='', fields=(ParamField(key='id', label='Id', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''),), encoding='json'),
+    ],
+    "Keypad Vision Pro": [
+        CommandDef(command='createKey', label='Create key', description='create a new passcode', command_type='command', parameter='', fields=(ParamField(key='name', label='Name', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='type', label='Type', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='password', label='Password', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='startTime', label='Start time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='endTime', label='End time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='deleteKey', label='Delete key', description='delete an existing passcode', command_type='command', parameter='', fields=(ParamField(key='id', label='Id', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''),), encoding='json'),
+    ],
+    "Lock": [
+        CommandDef(command='lock', label='Lock', description='rotate to locked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='unlock', label='Unlock', description='rotate to unlocked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='deadbolt', label='Deadbolt', description='disengage deadbolt or latch', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Lock Lite": [
+        CommandDef(command='lock', label='Lock', description='rotate to locked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='unlock', label='Unlock', description='rotate to unlocked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='deadbolt', label='Deadbolt', description='disengage deadbolt or latch', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Lock Pro": [
+        CommandDef(command='lock', label='Lock', description='rotate to locked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='unlock', label='Unlock', description='rotate to unlocked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='deadbolt', label='Deadbolt', description='disengage deadbolt or latch', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Lock Ultra": [
+        CommandDef(command='lock', label='Lock', description='rotate to locked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='unlock', label='Unlock', description='rotate to unlocked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='deadbolt', label='Deadbolt', description='disengage deadbolt or latch', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Lock Vision": [
+        CommandDef(command='lock', label='Lock', description='rotate to locked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='unlock', label='Unlock', description='rotate to unlocked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='deleteKey', label='Delete key', description='delete a passcode by id', command_type='command', parameter='', fields=(ParamField(key='id', label='Id', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''),), encoding='json'),
+        CommandDef(command='createKey', label='Create key', description='create a passcode', command_type='command', parameter='', fields=(ParamField(key='name', label='Name', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='type', label='Type', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='password', label='Password', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='startTime', label='Start time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='endTime', label='End time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "Lock Vision Pro": [
+        CommandDef(command='lock', label='Lock', description='rotate to locked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='unlock', label='Unlock', description='rotate to unlocked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='deleteKey', label='Delete key', description='delete a passcode by id', command_type='command', parameter='', fields=(ParamField(key='id', label='Id', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''),), encoding='json'),
+        CommandDef(command='createKey', label='Create key', description='create a passcode', command_type='command', parameter='', fields=(ParamField(key='name', label='Name', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='type', label='Type', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='password', label='Password', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='startTime', label='Start time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='endTime', label='End time', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "Permanent Outdoor Lights": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set color temperature'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+    ],
+    "Plug": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Plug Mini (EU)": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Plug Mini (JP)": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Plug Mini (US)": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "RGBIC Neon Rope Light": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+    ],
+    "RGBIC Neon Wire Rope Light": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+    ],
+    "RGBICWW Ceiling Light": [
+        CommandDef(command='turnOn', label='Turn on', description='turn on all lights', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='turn off all lights', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle all lights', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOnMainLight', label='Turn on main light', description='turn on main light', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOffMainLight', label='Turn off main light', description='turn off main light', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOnColorLight', label='Turn on color light', description='turn on color light', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOffColorLight', label='Turn off color light', description='turn off color light', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMainLightBrightness', label='Set main light brightness', description='set main light brightness', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='set main light brightness'),), encoding='scalar'),
+        CommandDef(command='setMainLightColorTemp', label='Set main light color temp', description='set main light color temp', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set main light color temp'),), encoding='scalar'),
+        CommandDef(command='setColorLightBrightness', label='Set color light brightness', description='set color light brightness', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='set color light brightness'),), encoding='scalar'),
+        CommandDef(command='setColorLightRGB', label='Set color light rgb', description='set color light RGB value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set color light RGB value'),), encoding='scalar'),
+    ],
+    "RGBICWW Floor Lamp": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set color temperature'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+    ],
+    "RGBICWW Strip Light": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set color temperature'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+    ],
+    "Relay Switch 1": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the switch mode. 0, toggle mode; 1, edge switch mode; 2, detached switch mode; 3, momentary switch mode', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=3, unit=None, options=(), value_type='auto', help='set the switch mode. 0, toggle mode; 1, edge switch mode; 2, detached switch mode; 3, momentary switch mode'),), encoding='scalar'),
+    ],
+    "Relay Switch 1PM": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the switch mode. 0, toggle mode; 1, edge switch mode; 2, detached switch mode; 3, momentary switch mode', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=3, unit=None, options=(), value_type='auto', help='set the switch mode. 0, toggle mode; 1, edge switch mode; 2, detached switch mode; 3, momentary switch mode'),), encoding='scalar'),
+    ],
+    "Relay Switch 2PM": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state 1 represents channel 1 2 represents channel 2', command_type='command', parameter='', fields=(ParamField(key='1_or_2', label='1 or 2', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set to ON state 1 represents channel 1 2 represents channel 2'),), encoding='scalar'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state 1 represents channel 1 2 represents channel 2', command_type='command', parameter='', fields=(ParamField(key='1_or_2', label='1 or 2', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set to OFF state 1 represents channel 1 2 represents channel 2'),), encoding='scalar'),
+        CommandDef(command='toggle', label='Toggle', description='toggle 1 represents channel 1 2 represents channel 2state', command_type='command', parameter='', fields=(ParamField(key='1_or_2', label='1 or 2', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='toggle 1 represents channel 1 2 represents channel 2state'),), encoding='scalar'),
+        CommandDef(command='setMode', label='Set mode', description='The first item represents the switching of channel number, 1 represents channel number 1 and 2 represents channel number 2. The second item represents set the switch mode. 0, toggle mode; 1, edge switch mode; 2, detached switch mode; 3, momentary switch mode', command_type='command', parameter='', fields=(ParamField(key='channel_mode_e_g_1', label='Channel mode e g 1', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='The first item represents the switching of channel number, 1 represents channel number 1 and 2 represents channel number 2. The second item represents set the switch mode. 0, toggle mode; 1, edge switch mode; 2, detached switch mode; 3, momentary switch mode'),), encoding='scalar'),
+        CommandDef(command='setPosition', label='Set position', description='Set roller blind opening and closing percentage. 0, Open All; 100, Close All', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='Set roller blind opening and closing percentage. 0, Open All; 100, Close All'),), encoding='scalar'),
+    ],
+    "Robot Vacuum Cleaner K10+ Pro Combo": [
+        CommandDef(command='startClean', label='Start clean', description='start cleaning. action_str, the cleaning mode, _sweep_ or _mop_. fanLevel, the vacuum level, 1-4. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='action', label='Action', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='param', label='Param', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='pause', label='Pause', description='pause cleaning', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to charging dock', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setVolume', label='Set volume', description='set the robot volume', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set the robot volume'),), encoding='scalar'),
+        CommandDef(command='changeParam', label='Change param', description='change clean parameters. fan_level_int, the vacuum level, 1-4; times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='fanLevel', label='Fan level', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "Robot Vacuum Cleaner S1": [
+        CommandDef(command='start', label='Start', description='start vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='stop', label='Stop', description='stop vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to charging dock', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='PowLevel', label='Pow level', description='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=3, unit=None, options=(), value_type='auto', help='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)'),), encoding='scalar'),
+    ],
+    "Robot Vacuum Cleaner S1 Plus": [
+        CommandDef(command='start', label='Start', description='start vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='stop', label='Stop', description='stop vacuuming', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to charging dock', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='PowLevel', label='Pow level', description='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=3, unit=None, options=(), value_type='auto', help='set suction power level: 0 (Quiet), 1 (Standard), 2 (Strong), 3 (MAX)'),), encoding='scalar'),
+    ],
+    "Roller Shade": [
+        CommandDef(command='setPosition', label='Set position', description='0, open; 100, closed', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='0, open; 100, closed'),), encoding='scalar'),
+    ],
+    "S20": [
+        CommandDef(command='startClean', label='Start clean', description='start cleaning. action, the cleaning mode, _sweep_ or _sweep_mop_. fanLevel, the vacuum level, 1-4. waterLevel, the mop moisture level, 1-2. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='action', label='Action', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='param', label='Param', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='waterLevel', label='Water level', kind='number', required=True, default=None, minimum=1, maximum=2, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+        CommandDef(command='addWaterForHumi', label='Add water for humi', description='refill the mind blowing Evaporative Humidifier (Auto-refill).', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='pause', label='Pause', description='pause.', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='dock', label='Dock', description='return to Auto-empty Station and charge.', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setVolume', label='Set volume', description='set volume, 1-100', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set volume, 1-100'),), encoding='scalar'),
+        CommandDef(command='selfClean', label='Self clean', description='mode 1, wash the mop. mode 2, dry itself. mode 3, terminate.', command_type='command', parameter='', fields=(ParamField(key='1_or_2_or', label='1 or 2 or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='mode 1, wash the mop. mode 2, dry itself. mode 3, terminate.'),), encoding='scalar'),
+        CommandDef(command='changeParam', label='Change param', description='fanLevel, the vacuum level, 1-4. waterLevel, the mop moisture level, 1-2. times, the number of cycles, 1-2639999, in theory.', command_type='command', parameter='', fields=(ParamField(key='fanLevel', label='Fan level', kind='number', required=True, default=None, minimum=1, maximum=4, unit=None, options=(), value_type='auto', help=''), ParamField(key='waterLevel', label='Water level', kind='number', required=True, default=None, minimum=1, maximum=2, unit=None, options=(), value_type='auto', help=''), ParamField(key='times', label='Times', kind='number', required=True, default=None, minimum=1, maximum=2639999, unit=None, options=(), value_type='auto', help='')), encoding='json'),
+    ],
+    "Smart Lock Pro Wifi": [
+        CommandDef(command='lock', label='Lock', description='rotate to locked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='unlock', label='Unlock', description='rotate to unlocked position', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='nightLatchUnlock', label='Night latch unlock', description='unlock night latch (EU)', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='deadbolt', label='Deadbolt', description='disengage deadbolt or latch', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Smart Radiator Thermostat": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setMode', label='Set mode', description='set the switch mode. 0,0, schedule mode; 1,manual mode; 2, power off mode; 3, energy saving mode; 4, comfort mode;5, quick heating mode', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=5, unit=None, options=(), value_type='auto', help='set the switch mode. 0,0, schedule mode; 1,manual mode; 2, power off mode; 3, energy saving mode; 4, comfort mode;5, quick heating mode'),), encoding='scalar'),
+        CommandDef(command='setManualModeTemperature', label='Set manual mode temperature', description='set the radiator thermostat temperature. Temperature range: 4–35 °C (inclusive)', command_type='command', parameter='', fields=(ParamField(key='4', label='4', kind='number', required=True, default=None, minimum=4, maximum=35, unit=None, options=(), value_type='auto', help='set the radiator thermostat temperature. Temperature range: 4–35 °C (inclusive)'),), encoding='scalar'),
+    ],
+    "Standing Fan": [
+        CommandDef(command='turnOff', label='Turn off', description='Set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOn', label='Turn on', description='Set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setNightLightMode', label='Set night light mode', description='off, turn off nightlight, 1, bright 2, dim', command_type='command', parameter='', fields=(ParamField(key='off', label='Off', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='value', label='Value', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or', label='Or', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindMode', label='Set wind mode', description='Set fan mode. direct: direct mode. natural: natural mode. sleep: sleep mode. baby: ultra quiet mode', command_type='command', parameter='', fields=(ParamField(key='direct', label='Direct', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='natural', label='Natural', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='sleep', label='Sleep', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='or_baby', label='Or baby', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+        CommandDef(command='setWindSpeed', label='Set wind speed', description='Set fan speed.1~100', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='Set fan speed.1~100'),), encoding='scalar'),
+        CommandDef(command='closeDelay', label='Close delay', description='Set fan close time', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=36000, unit=None, options=(), value_type='auto', help='Set fan close time'),), encoding='scalar'),
+    ],
+    "Strip Light": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='1', label='1', kind='number', required=True, default=None, minimum=1, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+    ],
+    "Strip Light 3": [
+        CommandDef(command='turnOn', label='Turn on', description='set to ON state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='set to OFF state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='toggle', label='Toggle', description='toggle state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='setBrightness', label='Set brightness', description='set brightness', command_type='command', parameter='', fields=(ParamField(key='0', label='0', kind='number', required=True, default=None, minimum=0, maximum=100, unit=None, options=(), value_type='auto', help='set brightness'),), encoding='scalar'),
+        CommandDef(command='setColor', label='Set color', description='set RGB color value', command_type='command', parameter='', fields=(ParamField(key='0_255_0_255_0_255', label='0 255 0 255 0 255', kind='number', required=True, default=None, minimum=0, maximum=255, unit=None, options=(), value_type='auto', help='set RGB color value'),), encoding='scalar'),
+        CommandDef(command='setColorTemperature', label='Set color temperature', description='set color temperature', command_type='command', parameter='', fields=(ParamField(key='2700', label='2700', kind='number', required=True, default=None, minimum=2700, maximum=6500, unit=None, options=(), value_type='auto', help='set color temperature'),), encoding='scalar'),
+    ],
+    "Video Doorbell": [
+        CommandDef(command='enableMotionDetection', label='Enable motion detection', description='Set to enabled state', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='disableMotionDetection', label='Disable motion detection', description='Set to disabled state', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Weather Station": [
+        CommandDef(command='customQuote', label='Custom quote', description='Set a custom quote', command_type='command', parameter='', fields=(ParamField(key='custom_text', label='Custom text', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='Set a custom quote'),), encoding='scalar'),
+        CommandDef(command='cancelCustom', label='Cancel custom', description='Cancel the custom quote and revert to default', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='customPage', label='Custom page', description='Set a custom page text', command_type='command', parameter='', fields=(ParamField(key='custom_text', label='Custom text', kind='text', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='Set a custom page text'),), encoding='scalar'),
+    ],
+}
+
+IR_COMMAND_INDEX: dict[str, list[CommandDef]] = {
+    "Air Conditioner": [
+        CommandDef(command='setAll', label='Set all', description='the unit of temperature is in celsius; modes include 0/1 (auto), 2 (cool), 3 (dry), 4 (fan), 5 (heat); fan speed includes 1 (auto), 2 (low), 3 (medium), 4 (high); power state includes on and off', command_type='command', parameter='', fields=(ParamField(key='temperature', label='Temperature', kind='number', required=True, default='26', minimum=None, maximum=None, unit=None, options=(), value_type='auto', help=''), ParamField(key='mode', label='Mode', kind='select', required=True, default='1', minimum=None, maximum=None, unit=None, options=(('1', 'Auto'), ('2', 'Cool'), ('3', 'Dry'), ('4', 'Fan'), ('5', 'Heat')), value_type='auto', help=''), ParamField(key='fan_speed', label='Fan speed', kind='select', required=True, default='3', minimum=None, maximum=None, unit=None, options=(('1', 'Auto'), ('2', 'Low'), ('3', 'Medium'), ('4', 'High')), value_type='auto', help=''), ParamField(key='power_state', label='Power state', kind='text', required=True, default='on', minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='')), encoding='csv'),
+    ],
+    "DVD": [
+        CommandDef(command='setMute', label='Set mute', description='mute/unmute', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='FastForward', label='Fast forward', description='fast forward', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Rewind', label='Rewind', description='rewind', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Next', label='Next', description='next track', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Previous', label='Previous', description='last track', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Pause', label='Pause', description='pause', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Play', label='Play', description='play/resume', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Stop', label='Stop', description='stop', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Fan": [
+        CommandDef(command='swing', label='Swing', description='swing', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='timer', label='Timer', description='set timer', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='lowSpeed', label='Low speed', description='set fan speed to low', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='middleSpeed', label='Middle speed', description='set fan speed to medium', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='highSpeed', label='High speed', description='set fan speed to high', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "IPTV/Streamer": [
+        CommandDef(command='SetChannel', label='Set channel', description='set the TV channel to switch to', command_type='command', parameter='', fields=(ParamField(key='channel_number', label='Channel number', kind='number', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set the TV channel to switch to'),), encoding='scalar'),
+        CommandDef(command='volumeAdd', label='Volume add', description='volume up', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='volumeSub', label='Volume sub', description='volume down', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='channelAdd', label='Channel add', description='next channel', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='channelSub', label='Channel sub', description='previous channel', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Light": [
+        CommandDef(command='brightnessUp', label='Brightness up', description='brightness up', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='brightnessDown', label='Brightness down', description='brightness down', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Set Top Box": [
+        CommandDef(command='SetChannel', label='Set channel', description='set the TV channel to switch to', command_type='command', parameter='', fields=(ParamField(key='channel_number', label='Channel number', kind='number', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set the TV channel to switch to'),), encoding='scalar'),
+        CommandDef(command='volumeAdd', label='Volume add', description='volume up', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='volumeSub', label='Volume sub', description='volume down', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='channelAdd', label='Channel add', description='next channel', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='channelSub', label='Channel sub', description='previous channel', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "Speaker": [
+        CommandDef(command='setMute', label='Set mute', description='mute/unmute', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='FastForward', label='Fast forward', description='fast forward', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Rewind', label='Rewind', description='rewind', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Next', label='Next', description='next track', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Previous', label='Previous', description='last track', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Pause', label='Pause', description='pause', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Play', label='Play', description='play/resume', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='Stop', label='Stop', description='stop', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='volumeAdd', label='Volume add', description='volume up', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='volumeSub', label='Volume sub', description='volume down', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "TV": [
+        CommandDef(command='SetChannel', label='Set channel', description='set the TV channel to switch to', command_type='command', parameter='', fields=(ParamField(key='channel_number', label='Channel number', kind='number', required=True, default=None, minimum=None, maximum=None, unit=None, options=(), value_type='auto', help='set the TV channel to switch to'),), encoding='scalar'),
+        CommandDef(command='volumeAdd', label='Volume add', description='volume up', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='volumeSub', label='Volume sub', description='volume down', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='channelAdd', label='Channel add', description='next channel', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='channelSub', label='Channel sub', description='previous channel', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+    "_all_ir_except_others": [
+        CommandDef(command='turnOn', label='Turn on', description='every home appliance can be turned on by default', command_type='command', parameter='default', fields=(), encoding='none'),
+        CommandDef(command='turnOff', label='Turn off', description='every home appliance can be turned off by default', command_type='command', parameter='default', fields=(), encoding='none'),
+    ],
+}
+
+# Maps a deviceType spelling the /v1.1/devices API actually returns
+# (the doc's declared type) to the spelling used as a COMMAND_INDEX /
+# IR_COMMAND_INDEX key (the doc's Control Commands table spelling).
+# Do not add both spellings as separate index keys -- look up a
+# deviceType here first, and fall back to the raw value if absent.
+GENERATED_TYPE_ALIASES: dict[str, str] = {
+    "Curtain3": "Curtain 3",
+    "Robot Vacuum Cleaner K11+": "K11+",
+    "Robot Vacuum Cleaner K20 Plus Pro": "K20+ Pro",
+    "Robot Vacuum Cleaner S10": "Floor Cleaning Robot S10",
+    "Robot Vacuum Cleaner S20": "S20",
+    "Smart Lock": "Lock",
+    "Smart Lock Pro": "Lock Pro",
+    "Smart Lock Ultra": "Lock Ultra",
+    "WeatherStation": "Weather Station",
+}
