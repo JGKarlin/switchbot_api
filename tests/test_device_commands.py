@@ -78,10 +78,22 @@ def test_smart_lock_generated_alias_resolves_to_same_commands_as_lock():
 
 
 def test_overlay_reaches_aliased_device_through_the_resolved_type():
-    """COMMAND_OVERLAY is keyed on the resolved type ("Lock:lock"), not the
-    spelling the API reports ("Smart Lock"), so the overlay must still reach
-    a device declared as "Smart Lock" through the GENERATED_TYPE_ALIASES
-    redirect. This is the whole path this task added.
+    """Exercises the generated-alias hop AND the overlay in one assertion.
+
+    Fails if either the alias resolution or the overlay merge is removed:
+    without the alias, Curtain3 resolves to nothing; without the overlay,
+    the label is the generated "Turn on".
+    """
+    cmd = dc.find_command("Curtain3", "turnOn")
+    assert cmd is not None
+    assert cmd.label == "Open curtain"
+
+
+def test_smart_lock_keeps_working_through_the_alias_without_an_overlay_entry():
+    """"Smart Lock" resolves to "Lock" via GENERATED_TYPE_ALIASES with no
+    COMMAND_OVERLAY entry involved -- the generated label "Lock" is already
+    correct, so no overlay patch is needed here. This only proves the alias
+    hop keeps working, not the overlay merge (see the test above for that).
     """
     cmd = dc.find_command("Smart Lock", "lock")
     assert cmd is not None

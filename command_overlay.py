@@ -44,8 +44,6 @@ COMMAND_OVERLAY: dict[str, dict] = {
                        help="0 is fully open, 100 is fully closed."),
         ),
     },
-    "Lock:lock": {"label": "Lock"},
-    "Lock:unlock": {"label": "Unlock"},
     "Air Conditioner:setAll": {
         "label": "Set temperature, mode and fan",
         "fields": (
