@@ -1,0 +1,47 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly, so a change in HACS's own requirements surfaces here rather than
+    # in a rejected pull request against hacs/default.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  hacs:
+    name: HACS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  hassfest:
+    name: Hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hassfest validation
+        uses: home-assistant/actions/hassfest@master
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install test dependencies
+        # The integration itself has no runtime dependencies; PyYAML comes from
+        # Home Assistant core at runtime and is needed here only to run the suite.
+        run: pip install pytest pyyaml
+      - name: Run tests
+        # These cover every module that does not import homeassistant, which is
+        # deliberately absent so the suite stays fast and dependency-free.
+        run: pytest -v
