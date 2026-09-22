@@ -34,6 +34,24 @@ IR_DOC = "devices/others/virtual-infrared-remote-devices.md"
 # Upstream writes placeholders, not command names, for user-defined buttons.
 PLACEHOLDER_COMMAND_RE = re.compile(r"^\{.*\}$")
 
+# A field key that is empty, starts with a digit, or is nothing but digits and
+# underscores is not a plausible identifier -- it is leftover punctuation from
+# an unnamed spec (e.g. "1-100", "0/255/0/255/0/255") that _normalize_key
+# could not turn into a real name. Such fields look confidently derived
+# (kind="number") but their key and label are a literal number or number
+# fragment, so they need a hand-written overlay just as much as a "text"
+# fallback does.
+SUSPECT_FIELD_KEY_RE = re.compile(r"^(?:[0-9_]+)?$")
+
+
+def _is_suspect_field_key(key: str) -> bool:
+    """True when a field key is empty, digit-led, or all digits/underscores."""
+    if not key:
+        return True
+    if key[0].isdigit():
+        return True
+    return bool(SUSPECT_FIELD_KEY_RE.match(key))
+
 HEADER = '''"""SwitchBot device command index.
 
 GENERATED FILE - do not edit by hand.
@@ -116,12 +134,20 @@ def render_index_module(
     )
 
 
-def build_index() -> tuple[dict[str, list], dict[str, list], list[str], dict[str, str]]:
+def build_index() -> tuple[
+    dict[str, list], dict[str, list], list[str], list[str], dict[str, str]
+]:
     """Fetch and parse every device doc.
 
-    Returns (physical, infrared, fallbacks, aliases). `aliases` maps a doc's
-    declared deviceType (the spelling the live API returns) to the spelling
-    used as its COMMAND_INDEX key, for every doc where the two differ and
+    Returns (physical, infrared, text_fallbacks, suspect_key_fallbacks,
+    aliases). `text_fallbacks` lists commands with an unparsed free-text
+    field (kind="text"). `suspect_key_fallbacks` lists commands where a field
+    looks confidently derived (kind="number", say) but its key is not a
+    plausible identifier -- these are just as much an overlay candidate as
+    the text fallbacks, but were previously invisible to this report. A
+    command can appear in both lists. `aliases` maps a doc's declared
+    deviceType (the spelling the live API returns) to the spelling used as
+    its COMMAND_INDEX key, for every doc where the two differ and
     RECONCILED_TYPES reconciles them. Losing the declared spelling would
     leave any device the API reports under that name with no commands at
     all, so the generator must emit the mapping rather than only using it to
@@ -129,7 +155,8 @@ def build_index() -> tuple[dict[str, list], dict[str, list], list[str], dict[str
     """
     physical: dict[str, list] = {}
     infrared: dict[str, list] = {}
-    fallbacks: list[str] = []
+    text_fallbacks: list[str] = []
+    suspect_key_fallbacks: list[str] = []
     aliases: dict[str, str] = {}
     # Per-target, per-device-type set of (command, command_type) pairs already
     # emitted. Upstream sometimes documents the same device type across more
@@ -176,11 +203,14 @@ def build_index() -> tuple[dict[str, list], dict[str, list], list[str], dict[str
                 if pair in device_seen:
                     continue
                 device_seen.add(pair)
+                item = f"{expanded.device_type}:{expanded.command}"
                 if any(f.kind == "text" for f in command.fields):
-                    fallbacks.append(f"{expanded.device_type}:{expanded.command}")
+                    text_fallbacks.append(item)
+                if any(_is_suspect_field_key(f.key) for f in command.fields):
+                    suspect_key_fallbacks.append(item)
                 target.setdefault(expanded.device_type, []).append(command)
 
-    return physical, infrared, fallbacks, aliases
+    return physical, infrared, text_fallbacks, suspect_key_fallbacks, aliases
 
 
 def main() -> int:
@@ -188,18 +218,23 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    physical, infrared, fallbacks, aliases = build_index()
+    physical, infrared, text_fallbacks, suspect_key_fallbacks, aliases = build_index()
 
     total = sum(len(v) for v in physical.values()) + sum(
         len(v) for v in infrared.values()
     )
+    all_candidates = set(text_fallbacks) | set(suspect_key_fallbacks)
     print(f"physical device types: {len(physical)}")
     print(f"infrared device types: {len(infrared)}")
     print(f"commands parsed:       {total}")
-    print(f"auto-derived schemas:  {total - len(fallbacks)}")
-    print(f"needs overlay:         {len(fallbacks)}")
-    for item in sorted(fallbacks):
-        print(f"  - {item}")
+    print(f"auto-derived schemas:  {total - len(all_candidates)}")
+    print(f"needs overlay:         {len(all_candidates)}")
+    print(f"  needs overlay (unparsed text):     {len(text_fallbacks)}")
+    for item in sorted(text_fallbacks):
+        print(f"    - {item}")
+    print(f"  needs overlay (suspect field name): {len(suspect_key_fallbacks)}")
+    for item in sorted(suspect_key_fallbacks):
+        print(f"    - {item}")
     print(f"type aliases:          {len(aliases)}")
     for declared in sorted(aliases):
         print(f"  - {declared!r} -> {aliases[declared]!r}")
