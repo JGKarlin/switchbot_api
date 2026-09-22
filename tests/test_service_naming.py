@@ -71,25 +71,97 @@ def test_slug_collision_gets_device_id_suffix():
 
 def test_alias_map_records_every_generated_slug():
     services, aliases = sg.build_services([device("Office Curtain", "Curtain", "E1")])
-    assert aliases["office_curtain"] == "E1"
-    assert aliases["office_curtain_move_to_position"] == "E1"
+    assert aliases["office_curtain"]["device_id"] == "E1"
+    assert aliases["office_curtain"]["command"] is None
+    assert aliases["office_curtain_move_to_position"]["device_id"] == "E1"
+    assert aliases["office_curtain_move_to_position"]["command"] == "setPosition"
 
 
 def test_rename_keeps_the_old_slug_alive():
     """A renamed device must not break automations using the old action."""
-    existing = {"office_curtain": "E1", "office_curtain_move_to_position": "E1"}
+    existing = {
+        "office_curtain": {"device_id": "E1", "command": None},
+        "office_curtain_move_to_position": {"device_id": "E1", "command": "setPosition"},
+    }
     services, aliases = sg.build_services(
         [device("Study Curtain", "Curtain", "E1")], existing_aliases=existing
     )
     names = [s.name for s in services]
     assert "study_curtain" in names
     assert "office_curtain" in names
-    assert aliases["office_curtain"] == "E1"
-    assert aliases["study_curtain"] == "E1"
+    assert aliases["office_curtain"]["device_id"] == "E1"
+    assert aliases["study_curtain"]["device_id"] == "E1"
+
+
+def test_rename_keeps_the_historical_parameterized_slug_as_parameterized():
+    """The restored slug must come back as the parameterized action, not the dropdown.
+
+    Regression test: filtering the restore lookup on command_def is None alone
+    would rebuild every historical slug from the dropdown action, silently
+    stripping the fields an automation's `position: 80` call depends on.
+    """
+    existing = {
+        "office_curtain": {"device_id": "E1", "command": None},
+        "office_curtain_move_to_position": {"device_id": "E1", "command": "setPosition"},
+    }
+    services, aliases = sg.build_services(
+        [device("Study Curtain", "Curtain", "E1")], existing_aliases=existing
+    )
+    restored = next(s for s in services if s.name == "office_curtain_move_to_position")
+    assert restored.command_def is not None
+    assert restored.command_def.command == "setPosition"
+    assert restored.command_def.fields
+    assert aliases["office_curtain_move_to_position"] == {
+        "device_id": "E1",
+        "command": "setPosition",
+    }
+
+
+def test_rename_keeps_the_historical_dropdown_slug_as_dropdown():
+    existing = {
+        "office_curtain": {"device_id": "E1", "command": None},
+        "office_curtain_move_to_position": {"device_id": "E1", "command": "setPosition"},
+    }
+    services, aliases = sg.build_services(
+        [device("Study Curtain", "Curtain", "E1")], existing_aliases=existing
+    )
+    restored = next(s for s in services if s.name == "office_curtain")
+    assert restored.command_def is None
+    assert {c.command for c in restored.commands} == {"turnOn", "turnOff", "pause"}
+    assert aliases["office_curtain"] == {"device_id": "E1", "command": None}
+
+
+def test_historical_slug_claimed_by_a_different_device_is_dropped():
+    """Restoring a stale slug must never redirect an automation to another device."""
+    existing = {"curtain": {"device_id": "E1", "command": None}}
+    services, aliases = sg.build_services(
+        [
+            device("Study Curtain", "Curtain", "E1"),
+            device("Curtain", "Curtain", "E2"),
+        ],
+        existing_aliases=existing,
+    )
+    assert aliases["curtain"] == {"device_id": "E2", "command": None}
+    names = [s.name for s in services]
+    assert names.count("curtain") == 1
+    curtain_service = next(s for s in services if s.name == "curtain")
+    assert curtain_service.device_id == "E2"
+
+
+def test_historical_alias_for_a_removed_command_is_dropped():
+    """If the recorded command no longer exists for the device, drop the alias."""
+    existing = {
+        "office_curtain_old_feature": {"device_id": "E1", "command": "discontinuedCommand"},
+    }
+    services, aliases = sg.build_services(
+        [device("Office Curtain", "Curtain", "E1")], existing_aliases=existing
+    )
+    assert "office_curtain_old_feature" not in aliases
+    assert "office_curtain_old_feature" not in [s.name for s in services]
 
 
 def test_alias_for_a_removed_device_is_dropped():
-    existing = {"old_gadget": "GONE1"}
+    existing = {"old_gadget": {"device_id": "GONE1", "command": None}}
     services, aliases = sg.build_services(
         [device("Office Curtain", "Curtain", "E1")], existing_aliases=existing
     )

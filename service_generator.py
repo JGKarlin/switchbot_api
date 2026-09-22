@@ -72,9 +72,17 @@ def build_services(
     devices: Iterable[Mapping[str, Any]],
     *,
     ir_buttons: Mapping[str, list[str]] | None = None,
-    existing_aliases: Mapping[str, str] | None = None,
-) -> tuple[list[GeneratedService], dict[str, str]]:
-    """Build the generated action set and the refreshed slug->device_id map."""
+    existing_aliases: Mapping[str, Mapping[str, Any]] | None = None,
+) -> tuple[list[GeneratedService], dict[str, dict[str, Any]]]:
+    """Build the generated action set and the refreshed alias map.
+
+    Each alias record is `{"device_id": ..., "command": ...}`, where
+    `command` is `None` for a dropdown action or the raw command name for a
+    parameterized one. Recording the command, not just the device, lets a
+    restored historical slug come back as the *same kind* of action it used
+    to be -- restoring it from the device's dropdown unconditionally would
+    silently strip the fields a parameterized automation depends on.
+    """
     ir_buttons = ir_buttons or {}
     device_list = list(devices)
     live_ids = {d["device_id"] for d in device_list}
@@ -107,7 +115,7 @@ def build_services(
 
         base_slug = _unique(slugify(device_name), taken, device_id)
         taken.add(base_slug)
-        aliases[base_slug] = device_id
+        aliases[base_slug] = {"device_id": device_id, "command": None}
 
         services.append(
             GeneratedService(
@@ -126,7 +134,7 @@ def build_services(
             label = command.display_label
             name = _unique(f"{base_slug}_{slugify(label)}", taken, device_id)
             taken.add(name)
-            aliases[name] = device_id
+            aliases[name] = {"device_id": device_id, "command": command.command}
             services.append(
                 GeneratedService(
                     name=name,
@@ -141,16 +149,35 @@ def build_services(
                 )
             )
 
-    for slug, device_id in (existing_aliases or {}).items():
-        if slug in aliases or device_id not in live_ids:
+    for slug, record in (existing_aliases or {}).items():
+        device_id = record["device_id"]
+        command = record.get("command")
+
+        if device_id not in live_ids:
+            continue  # the device is gone; the alias must not survive it
+
+        if slug in aliases:
+            # A device already claims this slug in the fresh generation --
+            # either the same device regenerated it identically (nothing to
+            # add), or a *different* device now owns it. Restoring the
+            # historical mapping in the second case would silently redirect
+            # an old automation to someone else's device, so both cases are
+            # dropped the same way: the freshly generated entry wins.
             continue
+
         source = next(
-            (s for s in services if s.device_id == device_id and s.command_def is None),
+            (
+                s
+                for s in services
+                if s.device_id == device_id
+                and (s.command_def.command if s.command_def else None) == command
+            ),
             None,
         )
         if source is None:
-            continue
-        aliases[slug] = device_id
+            continue  # the recorded command no longer exists for this device
+
+        aliases[slug] = {"device_id": device_id, "command": command}
         services.append(replace(source, name=slug))
 
     return services, aliases
