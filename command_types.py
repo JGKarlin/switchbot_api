@@ -81,12 +81,22 @@ def _coerce_json_value(fld: ParamField, raw: Any) -> Any:
     if fld.value_type == "str":
         return str(raw)
     if fld.value_type == "int":
-        return int(raw)
+        try:
+            return int(raw)
+        except (ValueError, TypeError) as e:
+            raise ParameterError(
+                f"'{fld.label}' must be a number, got {raw!r}"
+            )
     if fld.value_type == "bool":
         return _as_bool_text(raw) == "true"
     text = str(raw)
     if text.lstrip("-").isdigit():
-        return int(text)
+        try:
+            return int(text)
+        except (ValueError, TypeError) as e:
+            raise ParameterError(
+                f"'{fld.label}' must be a number, got {raw!r}"
+            )
     if text.lower() in ("true", "false"):
         return text.lower() == "true"
     return text

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from conftest import load_integration_module
@@ -136,3 +138,14 @@ def test_boolean_scalar_encodes_lowercase():
     )
     assert ct.encode_parameter(cmd, {"enabled": True}) == "true"
     assert ct.encode_parameter(cmd, {"enabled": False}) == "false"
+
+
+def test_json_int_coercion_error_raises_parameter_error():
+    cmd = ct.CommandDef(
+        command="setThing",
+        encoding="json",
+        fields=(ct.ParamField(key="count", label="Count", value_type="int"),),
+    )
+    with pytest.raises(ct.ParameterError) as exc:
+        ct.encode_parameter(cmd, {"count": "not_a_number"})
+    assert "Count" in str(exc.value)
