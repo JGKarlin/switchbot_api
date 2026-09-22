@@ -34,12 +34,15 @@ jobs:
         # finding no custom_components/, treats that mount point as the
         # integration directory -- whose name is literally "workspace" and so
         # can never match the domain. Staging a copy in the expected layout
-        # gives hassfest a directory named after the domain. CI only; nothing
-        # here is committed or shipped.
+        # gives hassfest a directory named after the domain. The files are
+        # MOVED rather than copied: hassfest validates every directory holding
+        # a manifest.json, so leaving one in the root would have it check the
+        # root as a second integration and fail on that one regardless. CI
+        # only; nothing here is committed or shipped.
         run: |
           mkdir -p custom_components/switchbot_api
-          cp ./*.py manifest.json services.yaml icons.json custom_components/switchbot_api/
-          cp -r translations custom_components/switchbot_api/
+          mv ./*.py manifest.json services.yaml icons.json translations \
+             custom_components/switchbot_api/
           ls custom_components/switchbot_api/
       - name: Hassfest validation
         uses: home-assistant/actions/hassfest@master
