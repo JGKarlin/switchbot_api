@@ -17,6 +17,13 @@ from .device_commands import get_commands_for_device_type
 
 CUSTOM_BUTTON_SUFFIX = " (custom button)"
 
+# Config-entry options key for the persisted map of device_id -> list of
+# custom IR button names the API has accepted. Defined here (not in
+# services.py) because a later task adds more infrared helpers to this
+# module; service_generator must never import from services, so the key it
+# needs to build_services() has to live on this side of that boundary.
+CONF_IR_BUTTONS = "ir_buttons"
+
 # The three built-in actions defined in `_static_services`. A generated
 # device slug must never collide with one of these -- e.g. a device named
 # "Send Command" slugifying to `send_command` would otherwise overwrite

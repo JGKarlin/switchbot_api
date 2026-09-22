@@ -21,6 +21,7 @@ from homeassistant.core import (
 from homeassistant.exceptions import ServiceValidationError
 
 from .api import SwitchBotApiError, async_request, generate_auth_payload
+from .command_types import ParameterError, encode_parameter
 from .const import (
     AUTH_HEADER_TTL_SECONDS,
     CONF_SECRET,
@@ -29,7 +30,15 @@ from .const import (
 )
 from .device_commands import (
     CommandDef,
+    find_command,
     get_commands_for_device_type,
+    resolve_command_type,
+)
+from .service_generator import (
+    CONF_IR_BUTTONS,
+    GeneratedService,
+    build_services,
+    render_services_yaml,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,6 +57,40 @@ DATA_DEVICES = "devices"
 DATA_DEVICE_MAP = "device_map"
 DATA_CACHE_UPDATED_UTC = "cache_updated_utc"
 DATA_CACHE_DEVICE_COUNT = "cache_device_count"
+DATA_GENERATED_SERVICES = "generated_services"
+DATA_IR_BUTTONS = "ir_buttons"
+
+CONF_SERVICE_ALIASES = "service_aliases"
+
+
+def get_ir_buttons(entry: ConfigEntry) -> dict[str, list[str]]:
+    """Registered custom IR button names, keyed by device ID."""
+    return dict(entry.options.get(CONF_IR_BUTTONS, {}))
+
+
+async def _async_remember_ir_button(
+    hass: HomeAssistant, entry: ConfigEntry, device_id: str, command: str
+) -> None:
+    """Remember a custom button name the API accepted, then schedule a regen.
+
+    Regeneration is scheduled with async_create_task rather than awaited:
+    this runs from inside a generated service handler that is still
+    executing, and async_regenerate_services() unregisters and re-registers
+    the generated service set. Awaiting it here would remove the very
+    service call currently in flight.
+    """
+    buttons = get_ir_buttons(entry)
+    known = list(buttons.get(device_id, []))
+    if command in known:
+        return
+
+    known.append(command)
+    buttons[device_id] = known
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, CONF_IR_BUTTONS: buttons}
+    )
+    _LOGGER.debug("Learned custom IR button '%s' for %s", command, device_id)
+    hass.async_create_task(async_regenerate_services(hass))
 
 
 async def fetch_devices(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
@@ -113,59 +156,145 @@ async def async_refresh_device_cache(hass: HomeAssistant) -> None:
     hass.data[DOMAIN][DATA_CACHE_UPDATED_UTC] = datetime.now(timezone.utc).isoformat()
     hass.data[DOMAIN][DATA_CACHE_DEVICE_COUNT] = len(device_map)
 
-    _write_services_yaml(sorted(device_map.keys()))
-
     _LOGGER.debug(
         "Cached %s SwitchBot devices for service selectors", len(device_map)
     )
 
 
-def _write_services_yaml(device_labels: list[str]) -> None:
-    """Rewrite services.yaml with current device names as select options."""
+def _write_services_yaml_blocking(content: str) -> None:
+    """Write services.yaml. Runs in an executor -- never on the event loop."""
     services_path = Path(__file__).parent / "services.yaml"
-
-    if device_labels:
-        options_lines = "\n".join(f'          - "{label}"' for label in device_labels)
-        device_selector = f"        select:\n          options:\n{options_lines}"
-    else:
-        device_selector = "        text:"
-
-    content = f"""get_devices:
-
-get_auth_headers:
-
-send_command:
-  fields:
-    device_name:
-      required: false
-      selector:
-{device_selector}
-    device_id:
-      required: false
-      example: C271111EC0AB
-      selector:
-        text:
-    command:
-      required: false
-      example: turnOn
-      selector:
-        text:
-    parameter:
-      required: false
-      example: default
-      selector:
-        text:
-    command_type:
-      required: false
-      example: command
-      selector:
-        text:
-"""
-
     try:
         services_path.write_text(content, encoding="utf-8")
     except OSError:
-        _LOGGER.warning("Could not write services.yaml for dynamic device selector")
+        _LOGGER.warning("Could not write services.yaml for generated actions")
+
+
+async def async_regenerate_services(hass: HomeAssistant) -> None:
+    """Rebuild the generated action set, rewrite services.yaml, re-register."""
+    entry = _get_config_entry(hass)
+    if not entry:
+        return
+
+    devices = hass.data.get(DOMAIN, {}).get(DATA_DEVICES, [])
+    device_map = _get_cached_device_map(hass)
+
+    generated, aliases = build_services(
+        devices,
+        ir_buttons=get_ir_buttons(entry),
+        existing_aliases=entry.options.get(CONF_SERVICE_ALIASES, {}),
+    )
+
+    if aliases != entry.options.get(CONF_SERVICE_ALIASES, {}):
+        hass.config_entries.async_update_entry(
+            entry, options={**entry.options, CONF_SERVICE_ALIASES: aliases}
+        )
+
+    content = render_services_yaml(
+        generated, device_labels=sorted(device_map.keys())
+    )
+    await hass.async_add_executor_job(_write_services_yaml_blocking, content)
+
+    _register_generated_services(hass, entry, generated)
+
+
+@callback
+def _register_generated_services(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    generated: list[GeneratedService],
+) -> None:
+    """Register one handler per generated action, removing stale ones first."""
+    previous: set[str] = set(hass.data.get(DOMAIN, {}).get(DATA_GENERATED_SERVICES, ()))
+    current = {service.name for service in generated}
+
+    for name in previous - current:
+        if hass.services.has_service(DOMAIN, name):
+            hass.services.async_remove(DOMAIN, name)
+
+    for service in generated:
+        if hass.services.has_service(DOMAIN, service.name):
+            hass.services.async_remove(DOMAIN, service.name)
+        hass.services.async_register(
+            DOMAIN,
+            service.name,
+            _make_generated_handler(hass, service),
+            schema=_generated_schema(service),
+            supports_response=SupportsResponse.OPTIONAL,
+        )
+
+    hass.data.setdefault(DOMAIN, {})[DATA_GENERATED_SERVICES] = sorted(current)
+
+
+def _generated_schema(service: GeneratedService) -> vol.Schema:
+    """Permissive schema; the handler validates against the CommandDef."""
+    if service.command_def is None:
+        return vol.Schema({vol.Required(ATTR_COMMAND): str})
+    return vol.Schema(
+        {
+            vol.Optional(field.key): vol.Any(str, int, float, bool)
+            for field in service.command_def.fields
+        }
+    )
+
+
+def _make_generated_handler(hass: HomeAssistant, service: GeneratedService):
+    """Build the handler closure for one generated action."""
+
+    async def _handler(call: ServiceCall) -> ServiceResponse | None:
+        entry = _get_config_entry(hass)
+        if not entry:
+            raise ServiceValidationError("No SwitchBot API configuration found")
+
+        device = {
+            "device_id": service.device_id,
+            "device_name": service.device_name,
+            "device_type": service.device_type,
+            "is_infrared": service.is_infrared,
+        }
+
+        if service.command_def is None:
+            command = call.data[ATTR_COMMAND]
+            command_def = find_command(
+                service.device_type, command, is_infrared=service.is_infrared
+            )
+            parameter: str | dict = "default"
+            if command_def is not None:
+                parameter = encode_parameter(command_def, {})
+        else:
+            command_def = service.command_def
+            command = command_def.command
+            try:
+                parameter = encode_parameter(command_def, call.data)
+            except ParameterError as exc:
+                raise ServiceValidationError(str(exc)) from exc
+
+        command_type = resolve_command_type(
+            service.device_type,
+            command,
+            is_infrared=service.is_infrared,
+            custom_buttons=tuple(get_ir_buttons(entry).get(service.device_id, ())),
+        )
+
+        body = await _async_send(
+            hass, entry, device, command, parameter, command_type
+        )
+
+        if call.return_response:
+            return {
+                "device_id": service.device_id,
+                "device_name": service.device_name,
+                "device_type": service.device_type,
+                "command": command,
+                "parameter": parameter
+                if isinstance(parameter, str)
+                else json.dumps(parameter),
+                "command_type": command_type,
+                "body": body,
+            }
+        return None
+
+    return _handler
 
 
 @callback
@@ -213,9 +342,16 @@ def _resolve_device(
 
 
 def _resolve_command(
-    device: dict[str, Any], call_data: dict[str, Any]
+    device: dict[str, Any],
+    call_data: dict[str, Any],
+    *,
+    custom_buttons: tuple[str, ...] = (),
 ) -> tuple[str, str | dict, str]:
     """Determine command, parameter, and command_type from call data and device type.
+
+    An explicit command_type in call_data always wins, so an automation that
+    sets it keeps its exact existing behaviour. Only when it is absent is
+    command_type derived from the device type and command.
 
     Returns (command, parameter, command_type).
     """
@@ -238,12 +374,13 @@ def _resolve_command(
             break
 
     command_type = call_data.get(ATTR_COMMAND_TYPE, "")
-    if cmd_def:
-        command_type = cmd_def.command_type
-    elif is_infrared and device_type == "Others":
-        command_type = "customize"
-    elif not command_type:
-        command_type = "command"
+    if not command_type:
+        command_type = resolve_command_type(
+            device_type,
+            raw_command,
+            is_infrared=is_infrared,
+            custom_buttons=tuple(custom_buttons),
+        )
 
     raw_parameter = call_data.get(ATTR_PARAMETER)
     if raw_parameter and isinstance(raw_parameter, str) and " \u2014 " in raw_parameter:
@@ -278,6 +415,7 @@ async def async_get_devices(call: ServiceCall) -> ServiceResponse:
         raise ServiceValidationError(str(exc)) from exc
 
     await async_refresh_device_cache(hass)
+    await async_regenerate_services(hass)
 
     _LOGGER.debug("Fetched %s SwitchBot devices", result["device_count"])
     return result
@@ -298,6 +436,43 @@ async def async_get_auth_headers(call: ServiceCall) -> ServiceResponse:
     return auth
 
 
+async def _async_send(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    device: dict[str, Any],
+    command: str,
+    parameter: str | dict,
+    command_type: str,
+) -> dict[str, Any]:
+    """POST a command to a device. Shared by send_command and generated actions."""
+    device_id = device["device_id"]
+    if not device_id:
+        raise ServiceValidationError("Could not determine device ID")
+
+    payload: dict[str, Any] = {
+        "command": command,
+        "parameter": parameter,
+        "commandType": command_type,
+    }
+
+    try:
+        body = await async_request(
+            hass,
+            "POST",
+            f"/devices/{device_id}/commands",
+            entry.data[CONF_TOKEN],
+            entry.data[CONF_SECRET],
+            payload=payload,
+        )
+    except SwitchBotApiError as exc:
+        raise ServiceValidationError(str(exc)) from exc
+
+    if command_type == "customize":
+        await _async_remember_ir_button(hass, entry, device_id, command)
+
+    return body
+
+
 async def async_send_command(call: ServiceCall) -> ServiceResponse | None:
     """Send a command to a SwitchBot device."""
     hass = call.hass
@@ -311,28 +486,12 @@ async def async_send_command(call: ServiceCall) -> ServiceResponse | None:
     if not device_id:
         raise ServiceValidationError("Could not determine device ID")
 
-    command, parameter, command_type = _resolve_command(device, call.data)
+    entry_buttons = get_ir_buttons(entry).get(device_id, [])
+    command, parameter, command_type = _resolve_command(
+        device, call.data, custom_buttons=entry_buttons
+    )
 
-    payload: dict[str, Any] = {
-        "command": command,
-        "parameter": parameter,
-        "commandType": command_type,
-    }
-
-    token = entry.data[CONF_TOKEN]
-    secret = entry.data[CONF_SECRET]
-
-    try:
-        body = await async_request(
-            hass,
-            "POST",
-            f"/devices/{device_id}/commands",
-            token,
-            secret,
-            payload=payload,
-        )
-    except SwitchBotApiError as exc:
-        raise ServiceValidationError(str(exc)) from exc
+    body = await _async_send(hass, entry, device, command, parameter, command_type)
 
     if call.return_response:
         return {
@@ -427,5 +586,9 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     for service in (SERVICE_GET_DEVICES, SERVICE_GET_AUTH_HEADERS, SERVICE_SEND_COMMAND):
         if hass.services.has_service(DOMAIN, service):
             hass.services.async_remove(DOMAIN, service)
+
+    for name in hass.data.get(DOMAIN, {}).get(DATA_GENERATED_SERVICES, ()):
+        if hass.services.has_service(DOMAIN, name):
+            hass.services.async_remove(DOMAIN, name)
 
     hass.data.pop(DOMAIN, None)
