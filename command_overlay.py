@@ -63,9 +63,13 @@ COMMAND_OVERLAY: dict[str, dict] = {
         "fields": (
             ParamField(key="temperature", label="Temperature", kind="number",
                        default="26", minimum=16, maximum=30, unit="°C"),
-            ParamField(key="mode", label="Mode", kind="select", default="2",
-                       options=(("1", "Auto"), ("2", "Cool"), ("3", "Dry"),
-                                ("4", "Fan"), ("5", "Heat"))),
+            # Upstream documents mode as "0/1 (auto), 2 (cool), 3 (dry),
+            # 4 (fan), 5 (heat)" and uses 1 in its own example ("26,1,3,on").
+            # Both 0 and 1 mean auto; keep 1 as the default and represent
+            # 0 explicitly rather than silently dropping it.
+            ParamField(key="mode", label="Mode", kind="select", default="1",
+                       options=(("0", "Auto"), ("1", "Auto"), ("2", "Cool"),
+                                ("3", "Dry"), ("4", "Fan"), ("5", "Heat"))),
             ParamField(key="fan_speed", label="Fan speed", kind="select",
                        default="1",
                        options=(("1", "Auto"), ("2", "Low"), ("3", "Medium"),

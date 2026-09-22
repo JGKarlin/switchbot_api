@@ -40,6 +40,20 @@ def test_light_set_color_uses_colon_joined_rgb_fields():
     assert ct.encode_parameter(cmd, {"red": 255, "green": 0, "blue": 0}) == "255:0:0"
 
 
+def test_air_conditioner_mode_includes_upstream_auto_zero():
+    """Upstream documents Air Conditioner setAll mode as "0/1 (auto), 2
+    (cool), 3 (dry), 4 (fan), 5 (heat)" and uses 1 in its own example
+    ("26,1,3,on"). The overlay must represent 0, not just 1, while keeping
+    1 as the default.
+    """
+    cmd = dc.find_command("Air Conditioner", "setAll", is_infrared=True)
+    assert cmd is not None
+    mode = next(f for f in cmd.fields if f.key == "mode")
+    assert dict(mode.options)["0"] == "Auto"
+    assert dict(mode.options)["1"] == "Auto"
+    assert mode.default == "1"
+
+
 def test_hub_device_types_have_no_commands():
     for device_type in ("Hub Mini", "Hub 2", "Hub 3"):
         assert dc.get_commands_for_device_type(device_type) == []
