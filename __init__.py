@@ -5,6 +5,7 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
@@ -15,6 +16,11 @@ from .services import (
     async_setup_services,
     async_unload_services,
 )
+
+# This integration is configured entirely through its config flow; it has no
+# YAML configuration. Declaring that explicitly is required of integrations
+# that implement async_setup, and silences a Home Assistant startup warning.
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 PLATFORMS = [Platform.BUTTON, Platform.SENSOR]
 

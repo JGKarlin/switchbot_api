@@ -26,6 +26,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Stage the integration where hassfest expects it
+        # This repository ships with hacs.json content_in_root, so the
+        # integration lives in the repository root rather than in
+        # custom_components/<domain>/. The hassfest action takes no inputs: it
+        # mounts the workspace root into its container at /github/workspace and,
+        # finding no custom_components/, treats that mount point as the
+        # integration directory -- whose name is literally "workspace" and so
+        # can never match the domain. Staging a copy in the expected layout
+        # gives hassfest a directory named after the domain. CI only; nothing
+        # here is committed or shipped.
+        run: |
+          mkdir -p custom_components/switchbot_api
+          cp ./*.py manifest.json services.yaml icons.json custom_components/switchbot_api/
+          cp -r translations custom_components/switchbot_api/
+          ls custom_components/switchbot_api/
       - name: Hassfest validation
         uses: home-assistant/actions/hassfest@master
 

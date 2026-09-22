@@ -1,6 +1,7 @@
 {
-  "service": {
+  "services": {
     "get_devices": "mdi:format-list-bulleted-square",
+    "get_auth_headers": "mdi:key-chain",
     "send_command": "mdi:remote"
   }
 }
