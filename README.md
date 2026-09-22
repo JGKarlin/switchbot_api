@@ -343,4 +343,4 @@ The **API status** sensor will show `authentication_failed` within 10 minutes if
 
 ## License
 
-MIT License (or your preferred license)
+Released under the [MIT License](LICENSE).
