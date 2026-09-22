@@ -228,7 +228,7 @@ class SwitchBotAuthOptionsFlowHandler(config_entries.OptionsFlow):
                 self.config_entry, options=merged
             )
             await async_regenerate_services(self.hass)
-            return self.async_create_entry(data=merged)
+            return self.async_create_entry(data=dict(self.config_entry.options))
 
         current = get_ir_buttons(self.config_entry).get(device_id, [])
         return self.async_show_form(
