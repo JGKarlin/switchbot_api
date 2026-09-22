@@ -35,7 +35,7 @@ _EXAMPLE_RE = re.compile(r"e\.g\.\s*([^\s;]+)", re.IGNORECASE)
 _RANGE_RE = re.compile(r"(\d+)\s*[~-]\s*(\d+)")
 _JSON_KEY_RE = re.compile(r'"([A-Za-z_][A-Za-z0-9_]*)"\s*:')
 _PAREN_ENUM_RE = re.compile(r"([A-Za-z0-9/]+)\s*\(([A-Za-z][A-Za-z /-]*)\)")
-_BACKTICK_ENUM_RE = re.compile(r"(?:^|;)\s*([A-Za-z0-9]+)\s*,\s*([^;,]+)")
+_BACKTICK_ENUM_RE = re.compile(r"(?:^|[;,.])\s*([A-Za-z0-9]+)\s*,\s*([^;,]+)")
 
 
 def humanize_command(name: str) -> str:
@@ -61,9 +61,11 @@ def _normalize_key(raw: str) -> str:
     return text or "value"
 
 
-def parse_range(text: str, key: str) -> tuple[int, int] | None:
+def parse_range(
+    text: str, key: str, sibling_keys: tuple[str, ...] = ()
+) -> tuple[int, int] | None:
     """Find a numeric range documented for `key`, e.g. 'position: 0~100'."""
-    window = _describe_window(text, key)
+    window = _describe_window(text, key, sibling_keys)
     match = _RANGE_RE.search(window)
     if not match:
         return None
@@ -71,19 +73,49 @@ def parse_range(text: str, key: str) -> tuple[int, int] | None:
     return (low, high) if low < high else None
 
 
-def _describe_window(text: str, key: str) -> str:
-    """Slice the description around the clause that documents `key`."""
+def _find_key(text: str, key: str) -> int | None:
+    """Find where `key` is first mentioned in `text`, trying looser forms."""
     pretty = key.replace("_", " ")
     for needle in (key, pretty, pretty.split()[0]):
         idx = text.lower().find(needle.lower())
         if idx != -1:
-            return text[idx : idx + 220]
-    return text
+            return idx
+    return None
 
 
-def parse_paren_enum(text: str, key: str) -> tuple[tuple[str, str], ...]:
+def _describe_window(
+    text: str, key: str, sibling_keys: tuple[str, ...] = ()
+) -> str:
+    """Slice the description around the clause that documents `key`.
+
+    The window runs from this key's own mention up to whichever sibling
+    key (another field of the same command) is mentioned earliest after
+    it, or to the end of the text if no sibling is mentioned later. This
+    is a deliberate overrun into neighbouring clauses when no sibling
+    bounds it sooner -- callers de-duplicate by value where that matters.
+
+    If `key` is not mentioned in `text` at all, there is no clause to
+    describe, so this returns an empty window rather than the whole text
+    (which would otherwise hand the field an unrelated sibling's options).
+    """
+    idx = _find_key(text, key)
+    if idx is None:
+        return ""
+    end = len(text)
+    for sibling in sibling_keys:
+        if sibling == key:
+            continue
+        sib_idx = _find_key(text, sibling)
+        if sib_idx is not None and idx < sib_idx < end:
+            end = sib_idx
+    return text[idx:end]
+
+
+def parse_paren_enum(
+    text: str, key: str, sibling_keys: tuple[str, ...] = ()
+) -> tuple[tuple[str, str], ...]:
     """'mode: 0 (Performance Mode), 1 (Silent Mode)' -> (('0','Performance Mode'),...)."""
-    window = _describe_window(text, key)
+    window = _describe_window(text, key, sibling_keys)
     options: list[tuple[str, str]] = []
     for value, label in _PAREN_ENUM_RE.findall(window):
         # A slash group collapses to its last value: "0/1 (auto)" -> "1".
@@ -98,9 +130,11 @@ def parse_paren_enum(text: str, key: str) -> tuple[tuple[str, str], ...]:
     return tuple(options)
 
 
-def parse_backtick_enum(text: str, key: str) -> tuple[tuple[str, str], ...]:
+def parse_backtick_enum(
+    text: str, key: str, sibling_keys: tuple[str, ...] = ()
+) -> tuple[tuple[str, str], ...]:
     """'mode_int, 1, level 4; 2, level 3' -> (('1','Level 4'), ('2','Level 3'))."""
-    window = _describe_window(text, key)
+    window = _describe_window(text, key, sibling_keys)
     options: list[tuple[str, str]] = []
     for value, label in _BACKTICK_ENUM_RE.findall(window):
         if not value.isdigit():
@@ -112,11 +146,16 @@ def parse_backtick_enum(text: str, key: str) -> tuple[tuple[str, str], ...]:
     return tuple(options)
 
 
-def _build_field(key: str, description: str, default: str | None) -> ParamField:
-    options = parse_paren_enum(description, key) or parse_backtick_enum(
-        description, key
+def _build_field(
+    key: str,
+    description: str,
+    default: str | None,
+    sibling_keys: tuple[str, ...] = (),
+) -> ParamField:
+    options = parse_paren_enum(description, key, sibling_keys) or parse_backtick_enum(
+        description, key, sibling_keys
     )
-    bounds = parse_range(description, key)
+    bounds = parse_range(description, key, sibling_keys)
 
     if options and len(options) > 1:
         return ParamField(
@@ -160,21 +199,26 @@ def derive_command(row) -> CommandDef:
     if spec.startswith("{") and '"' in spec:
         keys = _JSON_KEY_RE.findall(spec)
         if keys:
-            fields = tuple(_build_field(k, description, None) for k in keys)
+            sibling_keys = tuple(keys)
+            fields = tuple(
+                _build_field(k, description, None, sibling_keys) for k in keys
+            )
             return CommandDef(**base, parameter="", fields=fields, encoding="json")
 
     example = _EXAMPLE_RE.search(spec)
     head = spec.split("e.g.")[0].strip().rstrip(",").strip()
     if "," in head:
         parts = [p for p in head.split(",") if p.strip()]
+        keys = [_normalize_key(part) for part in parts]
+        sibling_keys = tuple(keys)
         defaults: list[str | None] = [None] * len(parts)
         if example:
             sample = example.group(1).strip().strip("`").split(",")
             if len(sample) == len(parts):
                 defaults = [s.strip() for s in sample]
         fields = tuple(
-            _build_field(_normalize_key(part), description, defaults[i])
-            for i, part in enumerate(parts)
+            _build_field(keys[i], description, defaults[i], sibling_keys)
+            for i in range(len(parts))
         )
         return CommandDef(**base, parameter="", fields=fields, encoding="csv")
 
