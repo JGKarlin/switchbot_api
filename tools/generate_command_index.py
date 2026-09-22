@@ -131,6 +131,15 @@ def build_index() -> tuple[dict[str, list], dict[str, list], list[str], dict[str
     infrared: dict[str, list] = {}
     fallbacks: list[str] = []
     aliases: dict[str, str] = {}
+    # Per-target, per-device-type set of (command, command_type) pairs already
+    # emitted. Upstream sometimes documents the same device type across more
+    # than one doc with byte-identical Control Commands tables (e.g. the two
+    # Humidifier2 variants); scoping dedup to (target, device_type, pair)
+    # drops exact repeats while still allowing the same command name to
+    # appear for a different device type, or twice under different
+    # command_type values within one device type.
+    physical_seen: dict[str, set[tuple[str, str]]] = {}
+    infrared_seen: dict[str, set[tuple[str, str]]] = {}
 
     paths = list_device_docs()
     print(f"fetched tree: {len(paths)} device docs")
@@ -142,6 +151,7 @@ def build_index() -> tuple[dict[str, list], dict[str, list], list[str], dict[str
             continue
 
         target = infrared if path == IR_DOC else physical
+        seen = infrared_seen if path == IR_DOC else physical_seen
 
         if path != IR_DOC:
             declared = doc_parser.extract_declared_device_type(markdown)
@@ -161,6 +171,11 @@ def build_index() -> tuple[dict[str, list], dict[str, list], list[str], dict[str
                 continue
             for expanded in doc_parser.expand_device_types(row):
                 command = schema_derive.derive_command(expanded)
+                pair = (command.command, command.command_type)
+                device_seen = seen.setdefault(expanded.device_type, set())
+                if pair in device_seen:
+                    continue
+                device_seen.add(pair)
                 if any(f.kind == "text" for f in command.fields):
                     fallbacks.append(f"{expanded.device_type}:{expanded.command}")
                 target.setdefault(expanded.device_type, []).append(command)

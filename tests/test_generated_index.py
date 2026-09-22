@@ -29,3 +29,15 @@ def test_sanity_anchors_for_real_owned_devices():
     assert "Air Conditioner" in ci.IR_COMMAND_INDEX
     assert "TV" in ci.IR_COMMAND_INDEX
     assert "Others" not in ci.IR_COMMAND_INDEX
+
+
+def test_no_device_type_has_duplicate_command_command_type_pairs():
+    for index in (ci.COMMAND_INDEX, ci.IR_COMMAND_INDEX):
+        for device_type, commands in index.items():
+            seen: set[tuple[str, str]] = set()
+            for command in commands:
+                pair = (command.command, command.command_type)
+                assert pair not in seen, (
+                    f"duplicate command {pair!r} for device type {device_type!r}"
+                )
+                seen.add(pair)
