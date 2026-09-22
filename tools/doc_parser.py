@@ -17,6 +17,14 @@ RECONCILED_TYPES: dict[str, str] = {
     "Curtain3": "Curtain 3",
     "WoCurtain3": "Curtain 3",
     "Humidifier2": "Humidifier2",
+    "Smart Lock Pro": "Lock Pro",
+    "Smart Lock Ultra": "Lock Ultra",
+    "Smart Lock": "Lock",
+    "WeatherStation": "Weather Station",
+    "Robot Vacuum Cleaner S10": "Floor Cleaning Robot S10",
+    "Robot Vacuum Cleaner S20": "S20",
+    "Robot Vacuum Cleaner K20 Plus Pro": "K20+ Pro",
+    "Robot Vacuum Cleaner K11+": "K11+",
 }
 
 _SECTION_RE = re.compile(
