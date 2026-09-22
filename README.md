@@ -16,6 +16,55 @@ This integration connects Home Assistant to the [SwitchBot Open API](https://git
 - **API status monitoring** – Validates your credentials every 10 minutes and shows `connected`, `authentication_failed`, or `connection_error`
 - **Credential management** – Update your token and secret via Reconfigure without removing the integration
 
+### Per-device actions (4.0.0+)
+
+Every controllable device in your account gets its own action with a
+plain-English command dropdown — no command strings to look up:
+
+```yaml
+action: switchbot_api.office_curtain
+data:
+  command: turnOn
+```
+
+Commands needing input get their own action with typed fields, and the API's
+parameter string is assembled for you:
+
+```yaml
+action: switchbot_api.office_curtain_move_to_position
+data:
+  position: 80
+  mode: ff
+  index: 0
+# sends parameter "0,ff,80"
+```
+
+Hubs, meters, sensors and the `Remote` device type generate no actions, since
+the API exposes no commands for them. Renaming a device in the SwitchBot app
+adds a new action and keeps the old one working, so existing automations don't
+break.
+
+`switchbot_api.send_command` is unchanged and remains the escape hatch for
+device types the command index doesn't know yet.
+
+After adding a new device in the SwitchBot app, refresh the device list (see
+[Device List and IDs](#device-list-and-ids) below) to regenerate its actions.
+Whether the new action then appears in the Home Assistant UI without a restart
+has not been verified on every version — a restart may be required after
+adding devices.
+
+### Custom infrared buttons
+
+The SwitchBot API cannot list the custom buttons you've configured in the app —
+`infraredRemoteList` returns only device ID, name, remote type and hub ID. Register
+them once under **Settings → Devices & Services → SwitchBot API → Configure →
+Custom infrared buttons**, one name per line, exactly as they appear in the app
+(names are case-sensitive). They then appear as a dropdown on that remote's
+action, sent with `commandType: customize`.
+
+Any custom button name the API accepts is also remembered automatically, so a
+name you type inline once appears in the dropdown afterwards.
+
 ## Why It Exists
 
 The official [SwitchBot Cloud integration](https://www.home-assistant.io/integrations/switchbot_cloud/) only supports a limited set of device types. Many SwitchBot products—including infrared remotes (IR remotes), some smart plugs, and newer devices—are not exposed as entities in the official integration.
@@ -32,11 +81,13 @@ This integration gives you **direct API access**, so you can:
 1. **Authentication** – You provide your SwitchBot Open API token and secret (from the SwitchBot app's Developer Options). The integration uses HMAC-SHA256 signing for each request.
 2. **Device list** – The integration fetches your devices from `GET /v1.1/devices` on startup and caches them. Both physical devices and infrared remotes are included.
 3. **Device selection** – When using `switchbot_api.send_command`, select your device by name from a dropdown. The device ID, type, and command type are resolved automatically.
-4. **Commands** – Commands are sent via `POST /v1.1/devices/{deviceId}/commands`. For most commands, the parameter defaults to `default` and the command type is auto-detected based on the device type.
+4. **Actions** – Every controllable device also gets its own generated action (see [Per-device actions](#per-device-actions-400) above) with a plain-English command dropdown, or typed fields for commands that need input. Every action — generated or `send_command` — sends `POST /v1.1/devices/{deviceId}/commands`, with the parameter and command type assembled or auto-detected for you.
 
 ---
 
 ## Installation
+
+Requires **Home Assistant 2024.11.0 or later**.
 
 ### Option 1: Manual Installation (custom_components)
 
@@ -260,7 +311,7 @@ The **API status** sensor will show `authentication_failed` within 10 minutes if
 
 ## Requirements
 
-- Home Assistant 2024.1.0 or later
+- Home Assistant 2024.11.0 or later
 - SwitchBot account with Open API token and secret
 - Internet access (API is cloud-based)
 
