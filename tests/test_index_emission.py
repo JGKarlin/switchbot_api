@@ -45,3 +45,15 @@ def test_rendered_module_declares_its_relative_import():
 def test_rendered_module_warns_against_hand_editing():
     source = gen.render_index_module({}, {})
     assert "generated" in source.lower()
+
+
+def test_rendered_module_emits_type_aliases_and_round_trips():
+    aliases = {"Smart Lock": "Lock"}
+
+    source = gen.render_index_module({}, {}, aliases)
+
+    namespace = {"CommandDef": ct.CommandDef, "ParamField": ct.ParamField}
+    exec(compile(source.replace("from .command_types import", "# from"),
+                 "<generated>", "exec"), namespace)
+
+    assert namespace["GENERATED_TYPE_ALIASES"]["Smart Lock"] == "Lock"

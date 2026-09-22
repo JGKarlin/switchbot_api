@@ -463,3 +463,20 @@ IR_COMMAND_INDEX: dict[str, list[CommandDef]] = {
         CommandDef(command='turnOff', label='Turn off', description='every home appliance can be turned off by default', command_type='command', parameter='default', fields=(), encoding='none'),
     ],
 }
+
+# Maps a deviceType spelling the /v1.1/devices API actually returns
+# (the doc's declared type) to the spelling used as a COMMAND_INDEX /
+# IR_COMMAND_INDEX key (the doc's Control Commands table spelling).
+# Do not add both spellings as separate index keys -- look up a
+# deviceType here first, and fall back to the raw value if absent.
+GENERATED_TYPE_ALIASES: dict[str, str] = {
+    "Curtain3": "Curtain 3",
+    "Robot Vacuum Cleaner K11+": "K11+",
+    "Robot Vacuum Cleaner K20 Plus Pro": "K20+ Pro",
+    "Robot Vacuum Cleaner S10": "Floor Cleaning Robot S10",
+    "Robot Vacuum Cleaner S20": "S20",
+    "Smart Lock": "Lock",
+    "Smart Lock Pro": "Lock Pro",
+    "Smart Lock Ultra": "Lock Ultra",
+    "WeatherStation": "Weather Station",
+}
