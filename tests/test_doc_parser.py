@@ -117,3 +117,25 @@ def test_device_type_agreement_raises_on_unreconciled_mismatch():
 
 def test_no_control_commands_section_returns_empty():
     assert dp.parse_control_commands("# Meter\n\nNo commands here.\n") == []
+
+
+def test_raises_on_embedded_pipe_in_cell():
+    """A row with a literal pipe in a cell is malformed and must be rejected."""
+    markdown = """## Control Commands
+
+| deviceType | commandType | command | parameterSpec | description |
+|---|---|---|---|---|
+| Device | command | myCmd | default | use `a|b` syntax |
+"""
+    with pytest.raises(dp.MalformedCommandRow) as exc:
+        dp.parse_control_commands(markdown)
+    assert "6 cells" in str(exc.value)
+
+
+def test_all_fixtures_parse_without_malformed_row_error():
+    """Regression guard: ensure no legitimate upstream content is rejected."""
+    fixture_names = ["curtain-3.md", "evaporative-humidifier.md",
+                     "virtual-infrared-remote-devices.md", "plug-mini-jp.md", "bot.md"]
+    for name in fixture_names:
+        rows = dp.parse_control_commands(fixture(name))
+        assert isinstance(rows, list)

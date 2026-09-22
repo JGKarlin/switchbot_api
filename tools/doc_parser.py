@@ -41,6 +41,10 @@ class DeviceTypeConflict(Exception):
     """A device's declared type and its command-table type do not reconcile."""
 
 
+class MalformedCommandRow(Exception):
+    """A Control Commands table row has malformed structure (e.g., embedded pipes)."""
+
+
 def _clean(cell: str) -> str:
     """Normalize a markdown table cell to plain text."""
     text = cell.replace("<br />", " ").replace("<br/>", " ").replace("<br>", " ")
@@ -68,6 +72,10 @@ def parse_control_commands(markdown: str) -> list[CommandRow]:
         cells = [_clean(c) for c in line.strip("|").split("|")]
         if len(cells) < 5:
             continue
+        if len(cells) > 5:
+            raise MalformedCommandRow(
+                f"Control Commands row has {len(cells)} cells (expected exactly 5): {line}"
+            )
 
         if not seen_header:
             # The first table row is the header (deviceType | commandType | ...).
