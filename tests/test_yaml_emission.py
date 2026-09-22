@@ -200,3 +200,29 @@ def test_output_is_valid_yaml_for_a_mixed_set():
         [dropdown(), parameterized()], device_labels=["Office Curtain [Curtain]"]
     )
     assert yaml.safe_load(text) is not None
+
+
+def test_build_service_description_matches_the_rendered_yaml_block():
+    """The description handed to Home Assistant must equal the YAML one.
+
+    At runtime the integration writes services.yaml AND pushes the same
+    description to Home Assistant via async_set_service_schema, because HA
+    caches descriptions keyed on the set of registered action names and will
+    not re-read the file when only an action's contents change. If these two
+    ever drift, the UI and the file disagree about what an action offers.
+    """
+    for service in (dropdown(), parameterized()):
+        rendered = yaml.safe_load(
+            sg.render_services_yaml([service], device_labels=[])
+        )[service.name]
+        assert sg.build_service_description(service) == rendered
+
+
+def test_build_service_description_carries_name_and_fields():
+    described = sg.build_service_description(parameterized())
+    assert described["name"] == "SwitchBot: Office Curtain - Move to position"
+    assert described["fields"]["position"]["name"] == "Position"
+    assert described["fields"]["mode"]["selector"]["select"]["options"] == [
+        {"label": "Default", "value": "ff"},
+        {"label": "Performance", "value": "0"},
+    ]

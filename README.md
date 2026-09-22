@@ -49,9 +49,9 @@ device types the command index doesn't know yet.
 
 After adding a new device in the SwitchBot app, refresh the device list (see
 [Device List and IDs](#device-list-and-ids) below) to regenerate its actions.
-Whether the new action then appears in the Home Assistant UI without a restart
-has not been verified on every version — a restart may be required after
-adding devices.
+Since 4.0.1 the new or updated action appears without restarting Home
+Assistant — including when an existing action's contents change, such as a
+newly registered infrared button joining its dropdown.
 
 ### Custom infrared buttons
 

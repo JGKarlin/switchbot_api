@@ -319,6 +319,19 @@ def _command_field(service: GeneratedService) -> dict[str, Any]:
     }
 
 
+def build_service_description(service: GeneratedService) -> dict[str, Any]:
+    """Return one action's description block: name, description and fields.
+
+    Used both to render services.yaml and, at runtime, to hand the same
+    description straight to Home Assistant via async_set_service_schema.
+    Home Assistant caches action descriptions keyed on the SET of registered
+    action names, so re-registering an action under an unchanged name leaves
+    the stale description in place; async_set_service_schema is the supported
+    way to update it without a restart.
+    """
+    return _service_block(service)
+
+
 def _service_block(service: GeneratedService) -> dict[str, Any]:
     block: dict[str, Any] = {
         "name": service.title,

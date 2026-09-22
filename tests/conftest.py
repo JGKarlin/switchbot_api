@@ -68,6 +68,10 @@ def _mock_homeassistant():
     # Add stubs to homeassistant.helpers.aiohttp_client
     aiohttp_client_mod.async_get_clientsession = StubClass
 
+    # homeassistant.helpers.service, for async_set_service_schema
+    service_mod = types.ModuleType("service")
+    service_mod.async_set_service_schema = lambda *args, **kwargs: None
+
     # Register all modules in sys.modules
     sys.modules["homeassistant"] = homeassistant
     sys.modules["homeassistant.config_entries"] = config_entries_mod
@@ -77,6 +81,7 @@ def _mock_homeassistant():
     sys.modules["homeassistant.helpers"] = helpers_mod
     sys.modules["homeassistant.helpers.entity_registry"] = entity_registry_mod
     sys.modules["homeassistant.helpers.aiohttp_client"] = aiohttp_client_mod
+    sys.modules["homeassistant.helpers.service"] = service_mod
     sys.modules["voluptuous"] = vol_mod
     sys.modules["aiohttp"] = aiohttp_mod
     sys.modules["requests"] = requests_mod
@@ -89,6 +94,7 @@ def _mock_homeassistant():
     homeassistant.helpers = helpers_mod
     helpers_mod.entity_registry = entity_registry_mod
     helpers_mod.aiohttp_client = aiohttp_client_mod
+    helpers_mod.service = service_mod
 
 
 # Don't mock at module level; do it in a pytest hook instead

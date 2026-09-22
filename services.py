@@ -19,6 +19,7 @@ from homeassistant.core import (
     callback,
 )
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers.service import async_set_service_schema
 
 from .api import SwitchBotApiError, async_request, generate_auth_payload
 from .command_types import ParameterError, encode_parameter
@@ -37,6 +38,7 @@ from .device_commands import (
 from .service_generator import (
     CONF_IR_BUTTONS,
     GeneratedService,
+    build_service_description,
     build_services,
     render_services_yaml,
 )
@@ -252,6 +254,16 @@ def _register_generated_services(
             _make_generated_handler(hass, service),
             schema=_generated_schema(service),
             supports_response=SupportsResponse.OPTIONAL,
+        )
+        # Registering alone is not enough. Home Assistant caches all action
+        # descriptions keyed on the SET of registered action names, so when an
+        # existing action's CONTENT changes -- a newly registered infrared
+        # button joining its dropdown -- the name set is unchanged and the UI
+        # keeps serving the stale description until a restart. Setting the
+        # schema explicitly updates the cached description and invalidates
+        # that all-descriptions cache.
+        async_set_service_schema(
+            hass, DOMAIN, service.name, build_service_description(service)
         )
 
     hass.data.setdefault(DOMAIN, {})[DATA_GENERATED_SERVICES] = sorted(current)
