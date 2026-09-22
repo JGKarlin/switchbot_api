@@ -61,9 +61,10 @@ class SwitchBotRefreshDevicesButton(ButtonEntity):
 
     async def async_press(self) -> None:
         """Handle button press -- refresh device cache."""
-        await async_refresh_device_cache(self._hass)
+        cache_ok = await async_refresh_device_cache(self._hass)
         await async_reregister_send_command(self._hass)
-        await async_regenerate_services(self._hass)
+        if cache_ok:
+            await async_regenerate_services(self._hass)
         self._update_attributes()
         self.async_write_ha_state()
 

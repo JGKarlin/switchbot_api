@@ -57,6 +57,7 @@ DATA_DEVICES = "devices"
 DATA_DEVICE_MAP = "device_map"
 DATA_CACHE_UPDATED_UTC = "cache_updated_utc"
 DATA_CACHE_DEVICE_COUNT = "cache_device_count"
+DATA_CACHE_VALID = "cache_valid"
 DATA_GENERATED_SERVICES = "generated_services"
 
 CONF_SERVICE_ALIASES = "service_aliases"
@@ -132,17 +133,23 @@ async def fetch_devices(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, An
     }
 
 
-async def async_refresh_device_cache(hass: HomeAssistant) -> None:
-    """Fetch and cache the device list for service dropdowns."""
+async def async_refresh_device_cache(hass: HomeAssistant) -> bool:
+    """Fetch and cache the device list for service dropdowns.
+
+    Returns True if the fetch succeeded and the cache was (re)populated,
+    False otherwise. A False return leaves any previously cached device
+    list -- and DATA_CACHE_VALID -- untouched, so callers can tell a failed
+    fetch apart from an account that genuinely has zero devices.
+    """
     entry = _get_config_entry(hass)
     if not entry:
-        return
+        return False
 
     try:
         result = await fetch_devices(hass, entry)
     except SwitchBotApiError:
         _LOGGER.warning("Could not fetch SwitchBot device list for service cache")
-        return
+        return False
 
     device_map: dict[str, dict[str, Any]] = {}
     for device in result["devices"]:
@@ -154,10 +161,12 @@ async def async_refresh_device_cache(hass: HomeAssistant) -> None:
     hass.data[DOMAIN][DATA_DEVICE_MAP] = device_map
     hass.data[DOMAIN][DATA_CACHE_UPDATED_UTC] = datetime.now(timezone.utc).isoformat()
     hass.data[DOMAIN][DATA_CACHE_DEVICE_COUNT] = len(device_map)
+    hass.data[DOMAIN][DATA_CACHE_VALID] = True
 
     _LOGGER.debug(
         "Cached %s SwitchBot devices for service selectors", len(device_map)
     )
+    return True
 
 
 def _write_services_yaml_blocking(content: str) -> None:
@@ -170,7 +179,30 @@ def _write_services_yaml_blocking(content: str) -> None:
 
 
 async def async_regenerate_services(hass: HomeAssistant) -> None:
-    """Rebuild the generated action set, rewrite services.yaml, re-register."""
+    """Rebuild the generated action set, rewrite services.yaml, re-register.
+
+    Bails out before touching entry.options or the on-disk file unless a
+    device fetch has *ever* successfully populated the cache this session
+    (DATA_CACHE_VALID). Without this guard, a single failed cloud fetch --
+    e.g. during a Home Assistant restart -- would see an empty device list,
+    build_services([]) would return no services and an empty alias map, and
+    this function would then overwrite entry.options[CONF_SERVICE_ALIASES]
+    with {} (destroying the rename history permanently), rewrite
+    services.yaml down to the three static actions, and deregister every
+    generated action, with no retry for the rest of the session. This guard
+    must hold even when called directly (the options flow and the
+    IR-button-learning path both call this function without checking
+    success themselves), not only when the immediate caller happens to
+    check it first.
+    """
+    if not hass.data.get(DOMAIN, {}).get(DATA_CACHE_VALID):
+        _LOGGER.warning(
+            "Skipping SwitchBot service regeneration: no successful device "
+            "fetch has populated the cache yet, so the previous generated "
+            "actions, services.yaml and alias map are being left alone"
+        )
+        return
+
     entry = _get_config_entry(hass)
     if not entry:
         return
@@ -259,7 +291,10 @@ def _make_generated_handler(hass: HomeAssistant, service: GeneratedService):
             )
             parameter: str | dict = "default"
             if command_def is not None:
-                parameter = encode_parameter(command_def, {})
+                try:
+                    parameter = encode_parameter(command_def, {})
+                except ParameterError as exc:
+                    raise ServiceValidationError(str(exc)) from exc
         else:
             command_def = service.command_def
             command = command_def.command
@@ -431,8 +466,9 @@ async def async_get_devices(call: ServiceCall) -> ServiceResponse:
     except SwitchBotApiError as exc:
         raise ServiceValidationError(str(exc)) from exc
 
-    await async_refresh_device_cache(hass)
-    await async_regenerate_services(hass)
+    cache_ok = await async_refresh_device_cache(hass)
+    if cache_ok:
+        await async_regenerate_services(hass)
 
     _LOGGER.debug("Fetched %s SwitchBot devices", result["device_count"])
     return result
@@ -593,7 +629,19 @@ async def async_reregister_send_command(hass: HomeAssistant) -> None:
 
 
 async def async_unload_services(hass: HomeAssistant) -> None:
-    """Unload registered services when no config entries remain."""
+    """Unload registered services when no config entries remain.
+
+    Generated per-device actions are torn down unconditionally, before the
+    "any entry still loaded" guard below: whether that guard is already
+    satisfied by the time this runs during a single entry's own unload is
+    not guaranteed across Home Assistant versions, and leaving a generated
+    action registered after unload is worse than redundantly removing one
+    that is already gone.
+    """
+    for name in hass.data.get(DOMAIN, {}).get(DATA_GENERATED_SERVICES, ()):
+        if hass.services.has_service(DOMAIN, name):
+            hass.services.async_remove(DOMAIN, name)
+
     if any(
         entry.state is ConfigEntryState.LOADED
         for entry in hass.config_entries.async_entries(DOMAIN)
@@ -603,9 +651,5 @@ async def async_unload_services(hass: HomeAssistant) -> None:
     for service in (SERVICE_GET_DEVICES, SERVICE_GET_AUTH_HEADERS, SERVICE_SEND_COMMAND):
         if hass.services.has_service(DOMAIN, service):
             hass.services.async_remove(DOMAIN, service)
-
-    for name in hass.data.get(DOMAIN, {}).get(DATA_GENERATED_SERVICES, ()):
-        if hass.services.has_service(DOMAIN, name):
-            hass.services.async_remove(DOMAIN, name)
 
     hass.data.pop(DOMAIN, None)
