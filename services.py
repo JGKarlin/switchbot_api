@@ -58,7 +58,6 @@ DATA_DEVICE_MAP = "device_map"
 DATA_CACHE_UPDATED_UTC = "cache_updated_utc"
 DATA_CACHE_DEVICE_COUNT = "cache_device_count"
 DATA_GENERATED_SERVICES = "generated_services"
-DATA_IR_BUTTONS = "ir_buttons"
 
 CONF_SERVICE_ALIASES = "service_aliases"
 
@@ -349,9 +348,11 @@ def _resolve_command(
 ) -> tuple[str, str | dict, str]:
     """Determine command, parameter, and command_type from call data and device type.
 
-    An explicit command_type in call_data always wins, so an automation that
-    sets it keeps its exact existing behaviour. Only when it is absent is
-    command_type derived from the device type and command.
+    An explicit command_type in call_data wins for physical devices --
+    send_command is the documented raw escape hatch, and a wrong explicit
+    value there should surface as a clear API error rather than be silently
+    overridden. Infrared devices are the one exception: see the comment
+    above the command_type block below.
 
     Returns (command, parameter, command_type).
     """
@@ -373,14 +374,30 @@ def _resolve_command(
             cmd_def = c
             break
 
-    command_type = call_data.get(ATTR_COMMAND_TYPE, "")
-    if not command_type:
-        command_type = resolve_command_type(
-            device_type,
-            raw_command,
-            is_infrared=is_infrared,
-            custom_buttons=tuple(custom_buttons),
-        )
+    resolved_type = resolve_command_type(
+        device_type,
+        raw_command,
+        is_infrared=is_infrared,
+        custom_buttons=tuple(custom_buttons),
+    )
+    explicit_type = call_data.get(ATTR_COMMAND_TYPE, "")
+
+    # Infrared "customize" wins even over an explicit command_type.
+    # Pre-4.0.0 behaviour (see 8acb267:services.py:240-247) unconditionally
+    # forced commandType=customize for infrared Others devices: the API
+    # rejects a typed/custom IR button name as a standard "command", but
+    # the send_command README example shows command_type: command, so an
+    # automation built from that example against an infrared remote's
+    # custom button only ever worked because the old code silently
+    # corrected the value. Making explicit-wins unconditional here would
+    # turn that working automation into an opaque API error. Every other
+    # device kind keeps explicit-wins (see the function docstring).
+    if is_infrared and resolved_type == "customize":
+        command_type = "customize"
+    elif explicit_type:
+        command_type = explicit_type
+    else:
+        command_type = resolved_type
 
     raw_parameter = call_data.get(ATTR_PARAMETER)
     if raw_parameter and isinstance(raw_parameter, str) and " \u2014 " in raw_parameter:
