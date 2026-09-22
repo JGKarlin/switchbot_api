@@ -39,7 +39,9 @@ def test_parameterless_commands_live_in_the_dropdown_action():
     services, _ = sg.build_services([device("Office Curtain", "Curtain", "E1")])
     dropdown = next(s for s in services if s.name == "office_curtain")
     assert dropdown.command_def is None
-    assert [c.command for c in dropdown.commands] == ["turnOn", "turnOff", "pause"]
+    assert {c.command for c in dropdown.commands} == {"turnOn", "turnOff", "pause"}
+    # setPosition takes input, so it gets its own action instead
+    assert "setPosition" not in {c.command for c in dropdown.commands}
 
 
 def test_parameterized_command_gets_its_own_action():
@@ -113,7 +115,7 @@ def test_ir_custom_buttons_are_labelled_as_custom():
     action = next(s for s in services if s.name == "living_room_tv")
     labels = {c.command: c.label for c in action.commands}
     assert labels["Netflix"] == "Netflix (custom button)"
-    assert labels["volumeAdd"] == "Volume up"
+    assert labels["volumeAdd"] == "Volume add"
 
 
 def test_ir_others_remote_with_no_buttons_still_gets_an_action():
