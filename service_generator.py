@@ -17,6 +17,13 @@ from .device_commands import get_commands_for_device_type
 
 CUSTOM_BUTTON_SUFFIX = " (custom button)"
 
+# The three built-in actions defined in `_static_services`. A generated
+# device slug must never collide with one of these -- e.g. a device named
+# "Send Command" slugifying to `send_command` would otherwise overwrite
+# `send_command`'s five-field schema when the generated services are merged
+# into the static dict in `render_services_yaml`.
+RESERVED_ACTION_NAMES = ("get_devices", "get_auth_headers", "send_command")
+
 
 @dataclass(frozen=True)
 class GeneratedService:
@@ -91,7 +98,7 @@ def build_services(
 
     services: list[GeneratedService] = []
     aliases: dict[str, str] = {}
-    taken: set[str] = set()
+    taken: set[str] = set(RESERVED_ACTION_NAMES)
 
     for device in device_list:
         device_id = device["device_id"]

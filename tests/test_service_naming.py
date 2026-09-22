@@ -204,3 +204,37 @@ def test_unknown_physical_device_type_gets_a_freeform_action():
     action = next(s for s in services if s.name == "new_gadget")
     assert action.commands == ()
     assert action.is_infrared is False
+
+
+def test_device_named_send_command_does_not_claim_the_reserved_slug():
+    """A device slugifying to a built-in action name must be renamed, not
+    allowed to collide -- otherwise merging generated and static services
+    would silently overwrite send_command's five-field schema."""
+    services, _ = sg.build_services(
+        [device("Send Command", "Curtain", "E1")]
+    )
+    dropdown = next(s for s in services if s.command_def is None)
+    assert dropdown.name != "send_command"
+    assert dropdown.name.startswith("send_command_")
+
+
+def test_send_command_block_survives_a_colliding_device_name():
+    """Rendering must still produce the real send_command action with all
+    five of its fields intact, unshadowed by the renamed device action."""
+    services, _ = sg.build_services([device("Send Command", "Curtain", "E1")])
+    text = sg.render_services_yaml(services, device_labels=[])
+    import yaml as _yaml
+
+    data = _yaml.safe_load(text)
+    assert set(data["send_command"]["fields"]) == {
+        "device_name", "device_id", "command", "parameter", "command_type"
+    }
+
+
+def test_device_named_get_devices_does_not_claim_the_reserved_slug():
+    services, _ = sg.build_services(
+        [device("Get Devices", "Curtain", "E2")]
+    )
+    dropdown = next(s for s in services if s.command_def is None)
+    assert dropdown.name != "get_devices"
+    assert dropdown.name.startswith("get_devices_")
