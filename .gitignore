@@ -3,3 +3,5 @@ __pycache__/
 .DS_Store
 *.zip
 create_release_zip.sh
+.venv/
+.pytest_cache/
