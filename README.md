@@ -175,7 +175,16 @@ The response includes:
 
 ## Controlling Devices
 
-### Using the Service
+Since 4.0.0 the usual way to control a device is its own generated action —
+`switchbot_api.<device>` with a plain-English command dropdown, described in
+[Per-device actions](#per-device-actions-400) above. You should rarely need to
+type a command string.
+
+`switchbot_api.send_command` remains available and unchanged, as the escape
+hatch for a device type the command index does not know yet, or for sending a
+raw command verbatim.
+
+### Using send_command
 
 Use `switchbot_api.send_command` to control any device:
 
@@ -185,11 +194,15 @@ Use `switchbot_api.send_command` to control any device:
 | `device_id`    | No*      | —         | Raw device ID for YAML automations (e.g. `C271111EC0AB`)                   |
 | `command`      | No       | `turnOn`  | The command to send                                                         |
 | `parameter`    | No       | `default` | Command parameter (string or JSON object)                                   |
-| `command_type` | No       | auto      | Auto-detected: `command` for physical devices, `customize` for IR "Others" |
+| `command_type` | No       | auto      | Auto-detected. `command` for physical devices; `customize` for any infrared custom button, on any remote type |
 
 *Either `device_name` or `device_id` must be provided.
 
-The `command_type` is automatically determined based on the device type — you typically don't need to set it.
+The `command_type` is determined automatically and you rarely need to set it. On a
+physical device an explicit value you supply wins. On an infrared remote, a command
+that resolves to a custom button is always sent as `customize`, because that is the
+only form the SwitchBot API accepts for one — this holds on typed remotes (TV, Air
+Conditioner, Fan) as well as `Others`, which earlier versions got wrong.
 
 ### Examples
 
@@ -205,7 +218,7 @@ data:
 ```yaml
 action: switchbot_api.send_command
 data:
-  device_id: "C77BA846E246"
+  device_id: "AABBCCDDEEFF"
   command: "lock"
 ```
 
@@ -213,7 +226,7 @@ data:
 ```yaml
 action: switchbot_api.send_command
 data:
-  device_id: "E3D02BF388C7"
+  device_id: "112233445566"
   command: "setPosition"
   parameter: "0,ff,50"
 ```
@@ -222,7 +235,7 @@ data:
 ```yaml
 action: switchbot_api.send_command
 data:
-  device_id: "02-202406031344-38077653"
+  device_id: "02-202401011234-12345678"
   command: "setAll"
   parameter: "26,2,3,on"
 ```
@@ -231,7 +244,7 @@ data:
 ```yaml
 action: switchbot_api.send_command
 data:
-  device_id: "03-202603050254-93377662"
+  device_id: "03-202401011234-87654321"
   command: "Power"
   command_type: "customize"
 ```
@@ -247,7 +260,7 @@ automation:
     action:
       - action: switchbot_api.send_command
         data:
-          device_id: "C77BA846E246"
+          device_id: "AABBCCDDEEFF"
           command: "lock"
 ```
 
