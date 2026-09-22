@@ -9,6 +9,20 @@ from __future__ import annotations
 
 from .command_types import ParamField
 
+# SwitchBot's RGB colour commands take "{0-255}:{0-255}:{0-255}" -- a
+# colon-joined triple, not a single scalar. The generator derives an
+# unnamed 0-255 range as a single field (see tools/schema_derive.py), so
+# every device type with a colon-joined colour command needs this overlay
+# to split it into three typed fields and switch the encoding to "colon".
+_RGB_COLOR_FIELDS = (
+    ParamField(key="red", label="Red", kind="number", default="255",
+               minimum=0, maximum=255),
+    ParamField(key="green", label="Green", kind="number", default="255",
+               minimum=0, maximum=255),
+    ParamField(key="blue", label="Blue", kind="number", default="255",
+               minimum=0, maximum=255),
+)
+
 COMMAND_OVERLAY: dict[str, dict] = {
     "Curtain:turnOn": {"label": "Open curtain"},
     "Curtain:turnOff": {"label": "Close curtain"},
@@ -59,6 +73,39 @@ COMMAND_OVERLAY: dict[str, dict] = {
             ParamField(key="power_state", label="Power", kind="select",
                        default="on", options=(("on", "On"), ("off", "Off"))),
         ),
+    },
+    "Color Bulb:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "Floor Lamp:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "Permanent Outdoor Lights:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "RGBIC Neon Rope Light:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "RGBIC Neon Wire Rope Light:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "RGBICWW Floor Lamp:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "RGBICWW Strip Light:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "Strip Light:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    "Strip Light 3:setColor": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
+    },
+    # Same colon-joined RGB format under a different command name -- the
+    # generator's scan (tools/generate_command_index.py) confirms no other
+    # command in the index uses this format.
+    "RGBICWW Ceiling Light:setColorLightRGB": {
+        "label": "Set colour", "encoding": "colon", "fields": _RGB_COLOR_FIELDS,
     },
 }
 

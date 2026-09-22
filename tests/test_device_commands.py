@@ -3,6 +3,7 @@ from __future__ import annotations
 from conftest import load_integration_module
 
 dc = load_integration_module("device_commands")
+ct = load_integration_module("command_types")
 
 
 def test_known_physical_device_has_commands():
@@ -25,6 +26,18 @@ def test_overlay_label_wins_over_generated_label():
 def test_overlay_label_for_turn_on_is_device_specific():
     cmd = dc.find_command("Curtain 3", "turnOn")
     assert cmd.label == "Open curtain"
+
+
+def test_light_set_color_uses_colon_joined_rgb_fields():
+    """setColor is derived as a single 0-255 scalar, but the SwitchBot API
+    requires "R:G:B" (colon-joined). The overlay must replace it with three
+    typed fields and a "colon" encoding so the wire value is well-formed.
+    """
+    cmd = dc.find_command("Color Bulb", "setColor")
+    assert cmd is not None
+    assert cmd.encoding == "colon"
+    assert [f.key for f in cmd.fields] == ["red", "green", "blue"]
+    assert ct.encode_parameter(cmd, {"red": 255, "green": 0, "blue": 0}) == "255:0:0"
 
 
 def test_hub_device_types_have_no_commands():

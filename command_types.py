@@ -124,6 +124,11 @@ def encode_parameter(
             _wire_text(fld, resolved[fld.key]) for fld in command_def.fields
         )
 
+    if encoding == "colon":
+        return ":".join(
+            _wire_text(fld, resolved[fld.key]) for fld in command_def.fields
+        )
+
     if encoding == "json":
         return {
             fld.key: _coerce_json_value(fld, resolved[fld.key])

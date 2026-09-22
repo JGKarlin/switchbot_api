@@ -47,6 +47,24 @@ def _set_all():
     )
 
 
+def _set_color():
+    """Color Bulb setColor: RGB joined by colons, e.g. "255:0:0"."""
+    return ct.CommandDef(
+        command="setColor",
+        label="Set colour",
+        encoding="colon",
+        parameter="",
+        fields=(
+            ct.ParamField(key="red", label="Red", kind="number", default="255",
+                          minimum=0, maximum=255),
+            ct.ParamField(key="green", label="Green", kind="number", default="255",
+                          minimum=0, maximum=255),
+            ct.ParamField(key="blue", label="Blue", kind="number", default="255",
+                          minimum=0, maximum=255),
+        ),
+    )
+
+
 def _set_mode_json():
     """Humidifier2 setMode: {"mode": int, "targetHumidify": int}."""
     return ct.CommandDef(
@@ -83,6 +101,42 @@ def test_csv_air_conditioner():
         _set_all(),
         {"temperature": 26, "mode": "2", "fan_speed": "3", "power_state": "on"},
     ) == "26,2,3,on"
+
+
+def test_colon_uses_wire_order_and_fills_defaults():
+    # No values supplied; all three channels come from their defaults.
+    assert ct.encode_parameter(_set_color(), {}) == "255:255:255"
+
+
+def test_colon_respects_supplied_values_over_defaults():
+    assert ct.encode_parameter(
+        _set_color(), {"red": 0, "green": 128, "blue": 255}
+    ) == "0:128:255"
+
+
+def test_colon_missing_value_with_no_default_raises():
+    cmd = ct.CommandDef(
+        command="setColor",
+        encoding="colon",
+        fields=(
+            ct.ParamField(key="red", label="Red", kind="number"),
+            ct.ParamField(key="green", label="Green", kind="number", default="0"),
+            ct.ParamField(key="blue", label="Blue", kind="number", default="0"),
+        ),
+    )
+    with pytest.raises(ct.ParameterError) as exc:
+        ct.encode_parameter(cmd, {})
+    assert "Red" in str(exc.value)
+
+
+def test_colon_empty_string_is_treated_as_missing():
+    cmd = ct.CommandDef(
+        command="setColor",
+        encoding="colon",
+        fields=(ct.ParamField(key="red", label="Red", kind="number"),),
+    )
+    with pytest.raises(ct.ParameterError):
+        ct.encode_parameter(cmd, {"red": ""})
 
 
 def test_json_coerces_digit_strings_to_int():
