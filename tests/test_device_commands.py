@@ -77,6 +77,17 @@ def test_smart_lock_generated_alias_resolves_to_same_commands_as_lock():
     assert smart_lock == lock
 
 
+def test_overlay_reaches_aliased_device_through_the_resolved_type():
+    """COMMAND_OVERLAY is keyed on the resolved type ("Lock:lock"), not the
+    spelling the API reports ("Smart Lock"), so the overlay must still reach
+    a device declared as "Smart Lock" through the GENERATED_TYPE_ALIASES
+    redirect. This is the whole path this task added.
+    """
+    cmd = dc.find_command("Smart Lock", "lock")
+    assert cmd is not None
+    assert cmd.label == "Lock"
+
+
 def test_curtain3_generated_alias_resolves_to_same_commands_as_curtain_3():
     assert dc.get_commands_for_device_type(
         "Curtain3"

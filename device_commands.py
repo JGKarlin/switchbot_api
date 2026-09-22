@@ -109,12 +109,15 @@ def resolve_command_type(
     case-sensitive. A custom button on ANY remote type requires
     commandType=customize, not only on Others-type remotes.
 
-    For infrared devices, a command that is not a declared custom button is
-    treated as a standard command (commandType=command) whenever the remote
-    type itself is a recognized typed remote (present in IR_COMMAND_INDEX),
-    even if that exact command name is not one of its listed commands --
-    only remote types with no standard command set at all (Others, or an
-    unrecognized type) fall back to commandType=customize.
+    For infrared devices: a registered custom button match wins first: if it
+    doesn't match, a standard command for that remote type wins next; anything
+    else -- including a name freshly typed into the combo box's custom-value
+    field, not yet registered as a custom button -- resolves to "customize".
+    This keeps the inline-entry escape hatch alive: a brand-new custom button
+    name on a typed remote (TV, Air Conditioner, Fan, ...) must still be sent
+    as commandType=customize, since the SwitchBot API rejects it as a
+    standard "command" and a later auto-remember feature only learns a custom
+    button name after a successful customize send.
     """
     if not is_infrared:
         found = find_command(device_type, command)
@@ -126,10 +129,6 @@ def resolve_command_type(
     found = find_command(device_type, command, is_infrared=True)
     if found is not None:
         return found.command_type
-
-    resolved = _normalize_ir_type(device_type)
-    if resolved in IR_COMMAND_INDEX:
-        return "command"
     return "customize"
 
 
