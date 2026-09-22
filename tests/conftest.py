@@ -143,21 +143,3 @@ import pytest
 def pytest_configure(config):
     """Mock homeassistant modules before test execution."""
     _mock_homeassistant()
-
-
-@pytest.fixture(autouse=True)
-def _reset_homeassistant_for_test(request):
-    """Remove mocked homeassistant before test, but restore for setup if needed."""
-    # For tests that want to verify homeassistant is NOT imported,
-    # we need to clear it before the test runs
-    removed_ha = {}
-    ha_keys = list(sys.modules.keys())
-    for key in ha_keys:
-        if key.startswith("homeassistant"):
-            removed_ha[key] = sys.modules.pop(key)
-
-    yield
-
-    # Restore for next test's setup phase
-    if removed_ha:
-        _mock_homeassistant()
